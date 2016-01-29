@@ -3,8 +3,8 @@ package org.usfirst.frc.team1492.robot;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -26,7 +26,7 @@ public class Robot extends IterativeRobot {
 
     int axisCount, buttonCount;
 
-    Talon leftMotor, rightMotor;
+    VictorSP leftMotor, rightMotor;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -40,8 +40,9 @@ public class Robot extends IterativeRobot {
 
         controller = new Joystick(0);
 
-        leftMotor = new Talon(0);
-        rightMotor = new Talon(1);
+        leftMotor = new VictorSP(0);
+        rightMotor = new VictorSP(1);
+
 
         try {
             server = CameraServer.getInstance();
@@ -93,11 +94,15 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
+        // The controller y axises are -1 when up and 1 when down
         double leftStick = controller.getRawAxis(1);
         double rightStick = controller.getRawAxis(5);
-        
-        leftStick = 1 - leftStick;
-        rightStick = 1 - rightStick;
+
+        /**
+         * Invert left y axis so motor turns in the correct direction. The left
+         * and right sides have to be inverted because the motors are mirrored
+         */
+        leftStick *= -1;
 
         leftMotor.set(deadband(leftStick));
         rightMotor.set(deadband(rightStick));
