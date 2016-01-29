@@ -43,9 +43,14 @@ public class Robot extends IterativeRobot {
         leftMotor = new Talon(0);
         rightMotor = new Talon(1);
 
-        // server = CameraServer.getInstance();
-        // server.setQuality(50);
-        // server.startAutomaticCapture("cam0");
+        try {
+            server = CameraServer.getInstance();
+            server.setQuality(50);
+            server.startAutomaticCapture("cam0");
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         axisCount = controller.getAxisCount();
         buttonCount = controller.getButtonCount();
