@@ -23,8 +23,6 @@ public class Robot extends IterativeRobot {
     String autoSelected;
     SendableChooser chooser;
     CameraServer server;
-    
-    boolean fast = true;
 
     //xbox remote
     Joystick controller;
@@ -120,6 +118,7 @@ public class Robot extends IterativeRobot {
         // The controller y axises are -1 when up and 1 when down
         double leftStick = controller.getRawAxis(1);
         double rightStick = controller.getRawAxis(5);
+        double rightTrig = controller.getRawAxis(3);
 
     	//Double joysick
     	//double leftStick = stickLeft.getRawAxis(1);
@@ -135,20 +134,8 @@ public class Robot extends IterativeRobot {
         //leftMotor.set(polyCurve(deadband(leftStick)));
         //rightMotor.set(polyCurve(deadband(rightStick)));
         
-        if (controller.getRawButton(8)) {
-        	fast = true;
-        }
-        if (controller.getRawButton(9)) {
-        	fast = false;
-        }
-        if (fast) {
-        	leftMotor.set(deadband(leftStick));
-        	rightMotor.set(deadband(rightStick));
-        } else {
-        	leftMotor.set(deadband(leftStick)/2);
-        	rightMotor.set(deadband(rightStick)/2);
-        }
-        
+        leftMotor.set(deadband(leftStick)*(1-(rightTrig/2)));
+        rightMotor.set(deadband(rightStick)*(1-(rightTrig/2)));
         
         SmartDashboard.putNumber("Gyro", gyro.getAngle());
       
