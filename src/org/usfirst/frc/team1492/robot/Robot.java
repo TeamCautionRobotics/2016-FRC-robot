@@ -22,7 +22,11 @@ public class Robot extends IterativeRobot {
     SendableChooser chooser;
     CameraServer server;
 
-    Joystick controller;
+    //xbox remote
+    //Joystick controller;
+    
+    Joystick stickLeft;
+    Joystick stickRight;
 
     int axisCount, buttonCount;
 
@@ -38,8 +42,11 @@ public class Robot extends IterativeRobot {
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto choices", chooser);
 
-        controller = new Joystick(0);
-
+        //xbox remote
+        //controller = new Joystick(0);
+        stickLeft = new Joystick(0);
+        stickRight = new Joystick(1);
+        
         leftMotor = new VictorSP(0);
         rightMotor = new VictorSP(1);
 
@@ -53,8 +60,9 @@ public class Robot extends IterativeRobot {
             e.printStackTrace();
         }
 
-        axisCount = controller.getAxisCount();
-        buttonCount = controller.getButtonCount();
+        //Testing
+        //axisCount = controller.getAxisCount();
+        //buttonCount = controller.getButtonCount();
     }
 
     /**
@@ -94,25 +102,32 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
+    	//xbox remote
         // The controller y axises are -1 when up and 1 when down
-        double leftStick = controller.getRawAxis(1);
-        double rightStick = controller.getRawAxis(5);
+        //double leftStick = controller.getRawAxis(1);
+        //double rightStick = controller.getRawAxis(5);
 
+    	double leftStick = stickLeft.getRawAxis(1);
+    	double rightStick = stickRight.getRawAxis(1);
         /**
          * Invert left y axis so motor turns in the correct direction. The left
          * and right sides have to be inverted because the motors are mirrored
          */
-        leftStick *= -1;
+        leftStick = -leftStick;
 
         leftMotor.set(deadband(leftStick));
         rightMotor.set(deadband(rightStick));
+        
+        square(leftStick);
+        square(rightStick);
+      
     }
 
     /**
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-        String joyData = "";
+        /*String joyData = "";
         String buttonData = "";
 
         for (int i = 0; i < axisCount; i++) {
@@ -123,12 +138,12 @@ public class Robot extends IterativeRobot {
         }
 
         System.out.println(joyData);
-        System.out.println(buttonData);
+        System.out.println(buttonData);*/
         Timer.delay(0.2);
     }
 
     double deadband(double rawValue) {
-        return deadband(rawValue, 0.1);
+        return deadband(rawValue, 0.2);
     }
 
     double deadband(double rawValue, double deadspace) {
@@ -141,4 +156,15 @@ public class Robot extends IterativeRobot {
         return 0;
     }
 
+    double abs(double a) {
+    	if (a < 0) {
+    		return -a;
+    	} else {
+    		return a;
+    	}
+    }
+    
+    double square(double a) {
+    	return a * a;
+    }
 }
