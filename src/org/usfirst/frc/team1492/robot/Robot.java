@@ -1,10 +1,12 @@
 package org.usfirst.frc.team1492.robot;
 
+import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -21,6 +23,8 @@ public class Robot extends IterativeRobot {
     String autoSelected;
     SendableChooser chooser;
     CameraServer server;
+    
+    boolean fast = true;
 
     //xbox remote
     Joystick controller;
@@ -32,6 +36,9 @@ public class Robot extends IterativeRobot {
     int axisCount, buttonCount;
 
     VictorSP leftMotor, rightMotor;
+    
+    //Sensors
+    Gyro gyro;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -52,15 +59,20 @@ public class Robot extends IterativeRobot {
         leftMotor = new VictorSP(0);
         rightMotor = new VictorSP(1);
 
-
+        //Sensors
+        gyro = new AnalogGyro(0);
+        
+        //Catch if no camera
         try {
             server = CameraServer.getInstance();
             server.setQuality(50);
-            server.startAutomaticCapture("cam0");
+            server.startAutomaticCapture("cam2");
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        
+        resetSensors();
 
         //Testing
         //axisCount = controller.getAxisCount();
@@ -118,11 +130,27 @@ public class Robot extends IterativeRobot {
          */
         leftStick = -leftStick;
 
-        leftMotor.set(deadband(leftStick));
-        rightMotor.set(deadband(rightStick));
+        //leftMotor.set(lineSegments(deadband(leftStick)));
+        //rightMotor.set(lineSegments(deadband(rightStick)));
+        //leftMotor.set(polyCurve(deadband(leftStick)));
+        //rightMotor.set(polyCurve(deadband(rightStick)));
         
-        square(leftStick);
-        square(rightStick);
+        if (controller.getRawButton(8)) {
+        	fast = true;
+        }
+        if (controller.getRawButton(9)) {
+        	fast = false;
+        }
+        if (fast) {
+        	leftMotor.set(deadband(leftStick));
+        	rightMotor.set(deadband(rightStick));
+        } else {
+        	leftMotor.set(deadband(leftStick)/2);
+        	rightMotor.set(deadband(rightStick)/2);
+        }
+        
+        
+        SmartDashboard.putNumber("Gyro", gyro.getAngle());
       
     }
 
@@ -167,7 +195,43 @@ public class Robot extends IterativeRobot {
     	}
     }
     
-    double square(double a) {
-    	return a * a;
+    //PolyCurve
+    double polyCurve(double x) {
+    	//y=a_{0}+a_{1}x+a_{2}x^{2}+a_{3}x^{3}, a_{0}=-6.9097e-10, a_{1}=0.0885, a_{2}=1.2702e-9, a_{3}=0.9115
+    	return .00000000069097 + (0.0885 * x) + (.0000000012702 * (x * x)) + (0.9115 * (x * x * x));
     }
+    
+    double lineSegments(double x) {
+    	boolean negative = false;
+    	if (x < 0) {
+    		negative = true;
+    		x = -x;
+    	}
+    	
+    	if(x >= 0 && x < .1) {
+    		x = ((1.0/3.0)/0.1) * x;
+    	} else if (x >= .1 && x <= .9) {
+    		x = ((1.0/3.0)/.8) * (x-.1) + (1/3);
+    	} else {
+    		x = ((1.0/3.0)/.1) * (x-.9) + (2/3);
+    	}
+    	
+    	if (negative){
+    		x = -x;
+    	}
+
+    	return x;
+    	
+    }
+    
+    //Reset sensors
+    void resetSensors() {
+    	gyro.reset();
+    }
+    
+    double getGyroAngle() {
+    	double gyroAngle = gyro.getAngle();
+    	return gyroAngle;
+    }
+    
 }
