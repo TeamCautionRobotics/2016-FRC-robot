@@ -23,10 +23,11 @@ public class Robot extends IterativeRobot {
     CameraServer server;
 
     //xbox remote
-    //Joystick controller;
+    Joystick controller;
     
-    Joystick stickLeft;
-    Joystick stickRight;
+    //Double Joystick
+    //Joystick stickLeft;
+    //Joystick stickRight;
 
     int axisCount, buttonCount;
 
@@ -43,9 +44,10 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putData("Auto choices", chooser);
 
         //xbox remote
-        //controller = new Joystick(0);
-        stickLeft = new Joystick(0);
-        stickRight = new Joystick(1);
+        controller = new Joystick(0);
+        //double joysticks
+        //stickLeft = new Joystick(0);
+        //stickRight = new Joystick(1);
         
         leftMotor = new VictorSP(0);
         rightMotor = new VictorSP(1);
@@ -104,11 +106,12 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
     	//xbox remote
         // The controller y axises are -1 when up and 1 when down
-        //double leftStick = controller.getRawAxis(1);
-        //double rightStick = controller.getRawAxis(5);
+        double leftStick = controller.getRawAxis(1);
+        double rightStick = controller.getRawAxis(5);
 
-    	double leftStick = stickLeft.getRawAxis(1);
-    	double rightStick = stickRight.getRawAxis(1);
+    	//Double joysick
+    	//double leftStick = stickLeft.getRawAxis(1);
+    	//double rightStick = stickRight.getRawAxis(1);
         /**
          * Invert left y axis so motor turns in the correct direction. The left
          * and right sides have to be inverted because the motors are mirrored
