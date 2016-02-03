@@ -24,15 +24,15 @@ public class Robot extends IterativeRobot {
     SendableChooser chooser;
     CameraServer server;
 
-    Boolean useGamepad = false;
+    Boolean useGamepad = true;
 
     Joystick[] joysticks;
 
     int axisCount, buttonCount;
 
     VictorSP leftMotor, rightMotor;
-    
-    //Sensors
+
+    // Sensors
     Gyro gyro;
 
     /**
@@ -45,7 +45,9 @@ public class Robot extends IterativeRobot {
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto choices", chooser);
 
-        if(useGamepad) {
+        joysticks = new Joystick[useGamepad ? 1 : 2];
+
+        if (useGamepad) {
             joysticks[0] = new Joystick(0);
         } else {
             joysticks[0] = new Joystick(0);
@@ -55,10 +57,10 @@ public class Robot extends IterativeRobot {
         leftMotor = new VictorSP(0);
         rightMotor = new VictorSP(1);
 
-        //Sensors
+        // Sensors
         gyro = new AnalogGyro(0);
-        
-        //Catch if no camera
+
+        // Catch if no camera
         try {
             server = CameraServer.getInstance();
             server.setQuality(50);
@@ -67,10 +69,10 @@ public class Robot extends IterativeRobot {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
         resetSensors();
 
-        //Testing
+        // Testing
         // axisCount = controller.getAxisCount();
         // buttonCount = controller.getButtonCount();
     }
@@ -112,8 +114,13 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-        double leftSpeed = deadband(getMotor(0), 0.2);
-        double rightSpeed = deadband(getMotor(1), 0.2);
+        double leftSpeed = deadband(getMotor(0));
+        double rightSpeed = deadband(getMotor(1));
+
+        SmartDashboard.putNumber("left joy db", leftSpeed);
+        SmartDashboard.putNumber("right joy db", rightSpeed);
+
+        SmartDashboard.putBoolean("speed mapping", getSpeedMapping());
 
         if (getSpeedMapping()) {
             leftSpeed /= 2;
@@ -126,9 +133,12 @@ public class Robot extends IterativeRobot {
          */
         leftMotor.set(-leftSpeed);
         rightMotor.set(rightSpeed);
-        
+
+        SmartDashboard.putNumber("right motor", rightSpeed);
+        SmartDashboard.putNumber("left motor", leftSpeed);
+
         SmartDashboard.putNumber("Gyro", gyro.getAngle());
-      
+
     }
 
     /**
@@ -149,7 +159,6 @@ public class Robot extends IterativeRobot {
         Timer.delay(0.2);
     }
 
-
     double deadband(double rawValue) {
         return deadband(rawValue, 0.2);
     }
@@ -165,35 +174,41 @@ public class Robot extends IterativeRobot {
     }
 
     /**
+     * Returns the y value of the joystick for the respective motor.
      * 
-     * @param side
-     *            0 for left 1 for right
+     * @param side 0 for left 1 for right
      * @return value of joystick for given motor
      */
     double getMotor(int side) {
-        if(useGamepad) {
+        if (useGamepad) {
             return joysticks[0].getRawAxis(side * 4 + 1);
-        } else { 
+        } else {
             return joysticks[side].getAxis(Joystick.AxisType.kY);
         }
     }
 
+    /**
+     * Determines whether to use the reduced speed mode
+     * 
+     * @return true if reduced speed, false if not
+     */
     boolean getSpeedMapping() {
-        if(useGamepad) {
+        if (useGamepad) {
             return joysticks[0].getRawAxis(3) > 0.5 ? true : false;
         } else {
-            return joysticks[1].getButton(Joystick.ButtonType.kTrigger);
+            // TODO: check if Joystick.ButtonType.kTrigger works.
+            return joysticks[1].getRawButton(1);
         }
     }
 
-    //Reset sensors
+    // Reset sensors
     void resetSensors() {
-    	gyro.reset();
+        gyro.reset();
     }
-    
+
     double getGyroAngle() {
-    	double gyroAngle = gyro.getAngle();
-    	return gyroAngle;
+        double gyroAngle = gyro.getAngle();
+        return gyroAngle;
     }
-    
+
 }
