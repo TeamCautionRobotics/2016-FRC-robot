@@ -24,12 +24,9 @@ public class Robot extends IterativeRobot {
     SendableChooser chooser;
     CameraServer server;
 
-    //xbox remote
-    Joystick controller;
-    
-    //Double Joystick
-    //Joystick stickLeft;
-    //Joystick stickRight;
+    Boolean useGamepad = false;
+
+    Joystick[] joysticks;
 
     int axisCount, buttonCount;
 
@@ -48,12 +45,13 @@ public class Robot extends IterativeRobot {
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto choices", chooser);
 
-        //xbox remote
-        controller = new Joystick(0);
-        //double joysticks
-        //stickLeft = new Joystick(0);
-        //stickRight = new Joystick(1);
-        
+        if(useGamepad) {
+            joysticks[0] = new Joystick(0);
+        } else {
+            joysticks[0] = new Joystick(0);
+            joysticks[1] = new Joystick(1);
+        }
+
         leftMotor = new VictorSP(0);
         rightMotor = new VictorSP(1);
 
@@ -73,8 +71,8 @@ public class Robot extends IterativeRobot {
         resetSensors();
 
         //Testing
-        //axisCount = controller.getAxisCount();
-        //buttonCount = controller.getButtonCount();
+        // axisCount = controller.getAxisCount();
+        // buttonCount = controller.getButtonCount();
     }
 
     /**
@@ -114,28 +112,20 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-    	//xbox remote
-        // The controller y axises are -1 when up and 1 when down
-        double leftStick = controller.getRawAxis(1);
-        double rightStick = controller.getRawAxis(5);
-        double rightTrig = controller.getRawAxis(3);
+        double leftSpeed = deadband(getMotor(0), 0.2);
+        double rightSpeed = deadband(getMotor(1), 0.2);
 
-    	//Double joysick
-    	//double leftStick = stickLeft.getRawAxis(1);
-    	//double rightStick = stickRight.getRawAxis(1);
+        if (getSpeedMapping()) {
+            leftSpeed /= 2;
+            rightSpeed /= 2;
+        }
+
         /**
          * Invert left y axis so motor turns in the correct direction. The left
          * and right sides have to be inverted because the motors are mirrored
          */
-        leftStick = -leftStick;
-
-        //leftMotor.set(lineSegments(deadband(leftStick)));
-        //rightMotor.set(lineSegments(deadband(rightStick)));
-        //leftMotor.set(polyCurve(deadband(leftStick)));
-        //rightMotor.set(polyCurve(deadband(rightStick)));
-        
-        leftMotor.set(deadband(leftStick)*(1-(rightTrig/2)));
-        rightMotor.set(deadband(rightStick)*(1-(rightTrig/2)));
+        leftMotor.set(-leftSpeed);
+        rightMotor.set(rightSpeed);
         
         SmartDashboard.putNumber("Gyro", gyro.getAngle());
       
@@ -145,20 +135,20 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-        /*String joyData = "";
-        String buttonData = "";
-
-        for (int i = 0; i < axisCount; i++) {
-            joyData = joyData + String.format("axis %d is %b  ", i, controller.getRawAxis(i));
-        }
-        for (int i = 0; i < buttonCount; i++) {
-            buttonData = buttonData + String.format("button %d is %b  ", i + 1, controller.getRawAxis(i + 1));
-        }
-
-        System.out.println(joyData);
-        System.out.println(buttonData);*/
+        /*
+         * String joyData = ""; String buttonData = "";
+         * 
+         * for (int i = 0; i < axisCount; i++) { joyData = joyData +
+         * String.format("axis %d is %b  ", i, controller.getRawAxis(i)); } for
+         * (int i = 0; i < buttonCount; i++) { buttonData = buttonData +
+         * String.format("button %d is %b  ", i + 1, controller.getRawAxis(i +
+         * 1)); }
+         * 
+         * System.out.println(joyData); System.out.println(buttonData);
+         */
         Timer.delay(0.2);
     }
+
 
     double deadband(double rawValue) {
         return deadband(rawValue, 0.2);
@@ -174,43 +164,28 @@ public class Robot extends IterativeRobot {
         return 0;
     }
 
-    double abs(double a) {
-    	if (a < 0) {
-    		return -a;
-    	} else {
-    		return a;
-    	}
+    /**
+     * 
+     * @param side
+     *            0 for left 1 for right
+     * @return value of joystick for given motor
+     */
+    double getMotor(int side) {
+        if(useGamepad) {
+            return joysticks[0].getRawAxis(side * 4 + 1);
+        } else { 
+            return joysticks[side].getAxis(Joystick.AxisType.kY);
+        }
     }
-    
-    //PolyCurve
-    double polyCurve(double x) {
-    	//y=a_{0}+a_{1}x+a_{2}x^{2}+a_{3}x^{3}, a_{0}=-6.9097e-10, a_{1}=0.0885, a_{2}=1.2702e-9, a_{3}=0.9115
-    	return .00000000069097 + (0.0885 * x) + (.0000000012702 * (x * x)) + (0.9115 * (x * x * x));
-    }
-    
-    double lineSegments(double x) {
-    	boolean negative = false;
-    	if (x < 0) {
-    		negative = true;
-    		x = -x;
-    	}
-    	
-    	if(x >= 0 && x < .1) {
-    		x = ((1.0/3.0)/0.1) * x;
-    	} else if (x >= .1 && x <= .9) {
-    		x = ((1.0/3.0)/.8) * (x-.1) + (1/3);
-    	} else {
-    		x = ((1.0/3.0)/.1) * (x-.9) + (2/3);
-    	}
-    	
-    	if (negative){
-    		x = -x;
-    	}
 
-    	return x;
-    	
+    boolean getSpeedMapping() {
+        if(useGamepad) {
+            return joysticks[0].getRawAxis(3) > 0.5 ? true : false;
+        } else {
+            return joysticks[1].getButton(Joystick.ButtonType.kTrigger);
+        }
     }
-    
+
     //Reset sensors
     void resetSensors() {
     	gyro.reset();
