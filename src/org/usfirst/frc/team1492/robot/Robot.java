@@ -73,8 +73,8 @@ public class Robot extends IterativeRobot {
         resetSensors();
 
         // Testing
-        // axisCount = controller.getAxisCount();
-        // buttonCount = controller.getButtonCount();
+        axisCount = joysticks[0].getAxisCount();
+        buttonCount = joysticks[0].getButtonCount();
     }
 
     /**
@@ -145,17 +145,19 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-        /*
-         * String joyData = ""; String buttonData = "";
-         * 
-         * for (int i = 0; i < axisCount; i++) { joyData = joyData +
-         * String.format("axis %d is %b  ", i, controller.getRawAxis(i)); } for
-         * (int i = 0; i < buttonCount; i++) { buttonData = buttonData +
-         * String.format("button %d is %b  ", i + 1, controller.getRawAxis(i +
-         * 1)); }
-         * 
-         * System.out.println(joyData); System.out.println(buttonData);
-         */
+        String joyData = "";
+        String buttonData = "";
+
+        for (int i = 0; i < axisCount; i++) {
+            joyData = joyData + String.format("axis %d is %b  ", i, joysticks[0].getRawAxis(i));
+        }
+        for (int i = 0; i < buttonCount; i++) {
+            buttonData = buttonData + String.format("button %d is %b  ", i + 1, joysticks[0].getRawAxis(i + 1));
+        }
+
+        System.out.println(joyData);
+        System.out.println(buttonData);
+
         Timer.delay(0.2);
     }
 
