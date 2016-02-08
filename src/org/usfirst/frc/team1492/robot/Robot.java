@@ -58,7 +58,7 @@ public class Robot extends IterativeRobot {
         rightMotor = new VictorSP(1);
 
         // Sensors
-        gyro = new AnalogGyro(0);
+        gyro = new AnalogGyro(1);
 
         // Catch if no camera
         try {
@@ -137,7 +137,8 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putNumber("right motor", rightSpeed);
         SmartDashboard.putNumber("left motor", leftSpeed);
 
-        SmartDashboard.putNumber("Gyro", gyro.getAngle());
+        double angle = gyro.getAngle();
+        SmartDashboard.putNumber("Gyro", angle);
 
     }
 
@@ -205,12 +206,8 @@ public class Robot extends IterativeRobot {
 
     // Reset sensors
     void resetSensors() {
-        gyro.reset();
-    }
-
-    double getGyroAngle() {
-        double gyroAngle = gyro.getAngle();
-        return gyroAngle;
+    	gyro.reset();
+        //gyro.calibrate();
     }
 
 }
