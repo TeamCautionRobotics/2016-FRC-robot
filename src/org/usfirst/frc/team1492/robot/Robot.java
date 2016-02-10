@@ -31,6 +31,11 @@ public class Robot extends IterativeRobot {
     int axisCount, buttonCount;
 
     VictorSP leftMotor, rightMotor;
+    VictorSP intakeArm;
+    VictorSP intakeRoller;
+    VictorSP conveyor;
+    VictorSP climbLeft, climbRight;
+    VictorSP flywheel;
 
     // Sensors
     Gyro gyro;
@@ -56,6 +61,12 @@ public class Robot extends IterativeRobot {
 
         leftMotor = new VictorSP(0);
         rightMotor = new VictorSP(1);
+        intakeArm = new VictorSP(2);
+        intakeRoller = new VictorSP(3);
+        conveyor = new VictorSP(4);
+        climbLeft = new VictorSP(5);
+        climbRight = new VictorSP(6);
+        flywheel = new VictorSP(7);
 
         // Sensors
         gyro = new AnalogGyro(1);
