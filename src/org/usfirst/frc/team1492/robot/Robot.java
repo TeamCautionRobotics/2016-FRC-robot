@@ -94,9 +94,7 @@ public class Robot extends IterativeRobot {
     /**
      * This autonomous (along with the chooser code above) shows how to select
      * between different autonomous modes using the dashboard. The sendable
-     * chooser code works with the Java SmartDashboard. If you prefer the
-     * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-     * getString line to get the auto name from the text box below the Gyro
+     * chooser code works with the Java SmartDashboard.
      *
      * You can add additional auto modes by adding additional comparisons to the
      * switch structure below with additional strings. If using the
@@ -104,8 +102,6 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousInit() {
         autoSelected = (String) chooser.getSelected();
-        // autoSelected = SmartDashboard.getString("Auto Selector",
-        // defaultAuto);
         System.out.println("Auto selected: " + autoSelected);
     }
 
@@ -220,8 +216,7 @@ public class Robot extends IterativeRobot {
 
     // Reset sensors
     void resetSensors() {
-    	gyro.reset();
-        //gyro.calibrate();
+        gyro.reset();
     }
 
 }
