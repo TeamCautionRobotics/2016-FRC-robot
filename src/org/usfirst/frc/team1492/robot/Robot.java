@@ -71,14 +71,17 @@ public class Robot extends IterativeRobot {
         // Sensors
         gyro = new AnalogGyro(1);
 
-        // Catch if no camera
-        try {
-            server = CameraServer.getInstance();
-            server.setQuality(50);
-            server.startAutomaticCapture("cam2");
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        // Camera
+        server = CameraServer.getInstance();
+        server.setQuality(50);
+
+        // Iterate through camera ids (0 to 3) to find camera (if connected)
+        for (int i = 0; i < 4; i++) {
+            server.startAutomaticCapture("cam" + i);
+            if (server.isAutoCaptureStarted()) {
+                System.out.println("Camera found at " + i);
+                break;
+            }
         }
 
         resetSensors();
