@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -23,6 +24,8 @@ public class Robot extends IterativeRobot {
     String autoSelected;
     SendableChooser chooser;
     CameraServer server;
+    
+    NetworkTable axisCam;
 
     Boolean useGamepad = true;
 
@@ -49,6 +52,8 @@ public class Robot extends IterativeRobot {
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto choices", chooser);
+        
+       axisCam = NetworkTable.getTable("SmartDashboard");
 
         joysticks = new Joystick[useGamepad ? 1 : 2];
 
@@ -126,7 +131,11 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
         double leftSpeed = deadband(getMotor(0));
         double rightSpeed = deadband(getMotor(1));
-
+        double blobVal = axisCam.getNumber("BLOB_COUNT", 0.0);
+        
+        
+        SmartDashboard.putNumber("Cam Value Blob", blobVal);
+        
         SmartDashboard.putNumber("left joy db", leftSpeed);
         SmartDashboard.putNumber("right joy db", rightSpeed);
 
