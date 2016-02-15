@@ -33,12 +33,14 @@ public class Robot extends IterativeRobot {
 
     int axisCount, buttonCount;
 
-    VictorSP leftMotor, rightMotor;
-    VictorSP intakeArm;
-    VictorSP intakeRoller;
+    VictorSP leftDrive;
+    VictorSP rightDrive;
     VictorSP conveyor;
-    VictorSP climbLeft, climbRight;
-    VictorSP flywheel;
+    VictorSP shooter;
+    VictorSP arm;
+    VictorSP intake;
+    VictorSP intakeArm;
+    VictorSP lift;
 
     // Sensors
     Gyro gyro;
@@ -64,14 +66,14 @@ public class Robot extends IterativeRobot {
             joysticks[1] = new Joystick(1);
         }
 
-        leftMotor = new VictorSP(0);
-        rightMotor = new VictorSP(1);
-        intakeArm = new VictorSP(2);
-        intakeRoller = new VictorSP(3);
-        conveyor = new VictorSP(4);
-        climbLeft = new VictorSP(5);
-        climbRight = new VictorSP(6);
-        flywheel = new VictorSP(7);
+        leftDrive  = new VictorSP(0);
+        rightDrive = new VictorSP(1);
+        conveyor   = new VictorSP(2);
+        shooter    = new VictorSP(3);
+        arm        = new VictorSP(4);
+        intake     = new VictorSP(5);
+        intakeArm  = new VictorSP(6);
+        lift       = new VictorSP(7);
 
         // Sensors
         gyro = new AnalogGyro(1);
@@ -150,8 +152,8 @@ public class Robot extends IterativeRobot {
          * Invert left y axis so motor turns in the correct direction. The left
          * and right sides have to be inverted because the motors are mirrored
          */
-        leftMotor.set(-leftSpeed);
-        rightMotor.set(rightSpeed);
+        leftDrive.set(-leftSpeed);
+        rightDrive.set(rightSpeed);
 
         SmartDashboard.putNumber("right motor", rightSpeed);
         SmartDashboard.putNumber("left motor", leftSpeed);
