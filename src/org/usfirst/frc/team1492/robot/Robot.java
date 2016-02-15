@@ -24,7 +24,7 @@ public class Robot extends IterativeRobot {
     String autoSelected;
     SendableChooser chooser;
     CameraServer server;
-    
+
     NetworkTable axisCam;
 
     Boolean useGamepad = true;
@@ -54,7 +54,7 @@ public class Robot extends IterativeRobot {
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto choices", chooser);
-        
+
        axisCam = NetworkTable.getTable("SmartDashboard");
 
         joysticks = new Joystick[useGamepad ? 1 : 2];
@@ -134,10 +134,10 @@ public class Robot extends IterativeRobot {
         double leftSpeed = deadband(getMotor(0));
         double rightSpeed = deadband(getMotor(1));
         double blobVal = axisCam.getNumber("BLOB_COUNT", 0.0);
-        
-        
+
+
         SmartDashboard.putNumber("Cam Value Blob", blobVal);
-        
+
         SmartDashboard.putNumber("left joy db", leftSpeed);
         SmartDashboard.putNumber("right joy db", rightSpeed);
 
@@ -199,7 +199,7 @@ public class Robot extends IterativeRobot {
 
     /**
      * Returns the y value of the joystick for the respective motor.
-     * 
+     *
      * @param side 0 for left 1 for right
      * @return value of joystick for given motor
      */
@@ -213,7 +213,7 @@ public class Robot extends IterativeRobot {
 
     /**
      * Determines whether to use the reduced speed mode
-     * 
+     *
      * @return true if reduced speed, false if not
      */
     boolean getSpeedMapping() {
