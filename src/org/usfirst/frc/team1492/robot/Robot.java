@@ -55,12 +55,13 @@ public class Robot extends IterativeRobot {
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto choices", chooser);
 
-       axisCam = NetworkTable.getTable("SmartDashboard");
+        axisCam = NetworkTable.getTable("SmartDashboard");
 
         joysticks = new Joystick[useGamepad ? 1 : 2];
 
         if (useGamepad) {
             joysticks[0] = new Joystick(0);
+            joysticks[1] = new Joystick(1);
         } else {
             joysticks[0] = new Joystick(0);
             joysticks[1] = new Joystick(1);
@@ -148,13 +149,58 @@ public class Robot extends IterativeRobot {
             rightSpeed /= 2;
         }
 
+        /*
+         * Button Mapping
+         * 1: A
+         * 2: B
+         * 3: X
+         * 4: Y
+         * 5: Left Bumper
+         * 6: Right Bumper
+         * 7: Back
+         * 8: Start
+         * 9: Left Joystick
+         * 10: Right Joystick
+         */
+        
+        // Driver Remote
         /**
          * Invert left y axis so motor turns in the correct direction. The left
          * and right sides have to be inverted because the motors are mirrored
          */
         leftDrive.set(-leftSpeed);
         rightDrive.set(rightSpeed);
-
+        
+        boolean conveyorButton = false;
+        if (!conveyorButton) {
+        	conveyorButton = true;
+        	if (joysticks[0].getRawButton(6)) conveyor.set(100);
+        } else {
+        	conveyorButton = false;
+        	if (joysticks[0].getRawButton(6)) conveyor.set(0);
+        }
+        
+        boolean intakeButton = false;
+        if (!intakeButton) {
+        	intakeButton = true;
+        	if (joysticks[0].getRawButton(5)) intake.set(100);
+        } else {
+        	intakeButton = false;
+        	if (joysticks[0].getRawButton(5)) intake.set(0);
+        }
+        
+        // Partner Remote
+        if (joysticks[1].getRawButton(3)) shooter.set(100);
+        if (joysticks[1].getRawButton(2)) shooter.set(0);
+        
+        if (joysticks[1].getRawButton(4)) arm.set(50);
+        if (joysticks[1].getRawButton(1)) arm.set(-50);
+        
+        intakeArm.set(joysticks[1].getRawAxis(5));
+        
+        if (joysticks[1].getRawButton(7)) lift.set(100);
+        if (joysticks[1].getRawButton(8)) lift.set(-100);
+        
         SmartDashboard.putNumber("right motor", rightSpeed);
         SmartDashboard.putNumber("left motor", leftSpeed);
 
