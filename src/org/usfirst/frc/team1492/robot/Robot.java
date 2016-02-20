@@ -223,7 +223,7 @@ public class Robot extends IterativeRobot {
         String switchData = "";
 
         for (DigitalInput digitalInput : limitSwitches) {
-			switchData += "".format("Switch %i is %b  ", digitalInput.get());
+			switchData += String.format("Switch %i is %b  ", digitalInput.get());
 		}
         
         System.out.println(switchData);
