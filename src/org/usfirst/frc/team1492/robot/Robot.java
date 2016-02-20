@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -20,15 +21,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 public class Robot extends IterativeRobot {
-    final String defaultAuto = "Default";
-    final String customAuto = "My Auto";
+	
+    final String noAuto = "Nothing";
+    final String moatAuto = "Moat";
+    
     String autoSelected;
-    SendableChooser chooser;
+    SendableChooser autoChooser;
+    
     CameraServer server;
 
     NetworkTable axisCam;
-
-    Boolean useGamepad = true;
 
     Joystick[] joysticks;
 
@@ -40,40 +42,36 @@ public class Robot extends IterativeRobot {
     VictorSP shooter;
     VictorSP arm;
     VictorSP intake;
-    VictorSP intakeArm;
-    VictorSP lift;
+//    VictorSP intakeArm;
+//    VictorSP lift;
 
     DigitalInput[] limitSwitches;
     
     // Sensors
     Gyro gyro;
+    
+    DigitalInput armBack;
+    DigitalInput ballLoaded;
+    DigitalInput intakeArm;
+    DigitalInput armForward;
 
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
     public void robotInit() {
-        chooser = new SendableChooser();
-        chooser.addDefault("Default Auto", defaultAuto);
-        chooser.addObject("My Auto", customAuto);
-        SmartDashboard.putData("Auto choices", chooser);
 
         axisCam = NetworkTable.getTable("SmartDashboard");
 
-        joysticks = new Joystick[useGamepad ? 2 : 2];
+        joysticks = new Joystick[2];
 
-        if (useGamepad) {
-            joysticks[0] = new Joystick(0);
-            joysticks[1] = new Joystick(1);
-        } else {
-            joysticks[0] = new Joystick(0);
-            joysticks[1] = new Joystick(1);
-        }
+        joysticks[0] = new Joystick(0);
+        joysticks[1] = new Joystick(1);
 
-        limitSwitches = new DigitalInput[4];
+        /*limitSwitches = new DigitalInput[4];
         for (int i = 0; i < limitSwitches.length; i++) {
 			 limitSwitches[i] = new DigitalInput(i);
-		}
+		}*/
         
         leftDrive  = new VictorSP(0);
         rightDrive = new VictorSP(1);
@@ -81,17 +79,28 @@ public class Robot extends IterativeRobot {
         shooter    = new VictorSP(3);
         arm        = new VictorSP(4);
         intake     = new VictorSP(5);
-        intakeArm  = new VictorSP(6);
-        lift       = new VictorSP(7);
+//        intakeArm  = new VictorSP(6);
+//        lift       = new VictorSP(7);
 
+        autoChooser = new SendableChooser();
+        autoChooser.addDefault("Nothing", noAuto);
+        autoChooser.addObject("Moat", moatAuto);
+        
+        SmartDashboard.putData("Autonomouse mode chooser", autoChooser);
+        
         // Sensors
         gyro = new AnalogGyro(1);
+        
+        armBack = new DigitalInput(1);
+        ballLoaded = new DigitalInput(2);
+        intakeArm = new DigitalInput(3);
+        armForward = new DigitalInput(4);
 
         // Camera
         server = CameraServer.getInstance();
         server.setQuality(50);
 
-        // Iterate through camera ids (0 to 3) to find camera (if connected)
+        //Iterate through camera ids (0 to 3) to find camera (if connected)
         for (int i = 0; i < 4; i++) {
             server.startAutomaticCapture("cam" + i);
             if (server.isAutoCaptureStarted()) {
@@ -117,7 +126,7 @@ public class Robot extends IterativeRobot {
      * SendableChooser make sure to add them to the chooser code above as well.
      */
     public void autonomousInit() {
-        autoSelected = (String) chooser.getSelected();
+        autoSelected = (String) autoChooser.getSelected();
         System.out.println("Auto selected: " + autoSelected);
     }
 
@@ -126,12 +135,16 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousPeriodic() {
         switch (autoSelected) {
-        case customAuto:
-            // Put custom auto code here
+        case moatAuto:
+        	
+        	drive(.5);
+        	Timer.delay(2);
+        	drive(0);
+        	
             break;
-        case defaultAuto:
+        case noAuto:
         default:
-            // Put default auto code here
+        	//No auto
             break;
         }
     }
@@ -144,7 +157,8 @@ public class Robot extends IterativeRobot {
         double rightSpeed = deadband(getMotor(0));
         double blobVal = axisCam.getNumber("BLOB_COUNT", 0.0);
 
-
+        testPeriodic();
+        
         SmartDashboard.putNumber("Cam Value Blob", blobVal);
 
         SmartDashboard.putNumber("left joy db", leftSpeed);
@@ -179,34 +193,54 @@ public class Robot extends IterativeRobot {
         leftDrive.set(leftSpeed);
         rightDrive.set(-rightSpeed);
         
-        boolean conveyorButton = false;
-        if (!conveyorButton) {
-        	conveyorButton = true;
-        	if (joysticks[0].getRawButton(6)) conveyor.set(1);
+        boolean reverse = joysticks[0].getRawAxis(2) > .2;
+		if (joysticks[0].getRawButton(5)) {
+        	intake.set(0.5);
+        } else if(reverse) {
+        	intake.set(-0.5);
         } else {
-        	conveyorButton = false;
-        	if (joysticks[0].getRawButton(6)) conveyor.set(0);
+        	intake.set(0);
         }
         
-        boolean intakeButton = false;
-        if (!intakeButton) {
-        	intakeButton = true;
-        	if (joysticks[0].getRawButton(5)) intake.set(1);
+        // Partner
+        
+        if (joysticks[1].getRawButton(1)) {
+        	shooter.set(1);
+        } else if(reverse) {
+        	shooter.set(-0.5);
         } else {
-        	intakeButton = false;
-        	if (joysticks[0].getRawButton(5)) intake.set(0);
+        	shooter.set(0);
         }
         
-        // Partner Remote
-        if (joysticks[1].getRawButton(3)) shooter.set(1);
-        if (joysticks[1].getRawButton(2)) shooter.set(0);
+        if (joysticks[1].getRawButton(6)) {
+        	conveyor.set(0.5);
+        } else if(reverse) {
+        	conveyor.set(-0.5);
+        } else {
+        	conveyor.set(0);
+        }
         
-        arm.set(deadband(joysticks[1].getRawAxis(1)) / 4);
+        // - forward
+        // + backward
+        // go + if back is not pressed
+        // go - if forward is not pressed
+
+        if (!armBack.get()) {
+        	arm.set(Math.min(0, deadband(joysticks[1].getRawAxis(1))));
+        } else if (!armForward.get()) {
+        	arm.set(Math.max(0, deadband(joysticks[1].getRawAxis(1))));
+        } else {
+        	arm.set(deadband(joysticks[1].getRawAxis(1)));
+        }
         
-        intakeArm.set(deadband(joysticks[1].getRawAxis(5)));
+//        if ((!armBack.get() && joysticks[1].getRawAxis(1) < 0) || (!armForward.get() && joysticks[1].getRawAxis(1) > 0)) {
+//        	arm.set(deadband(joysticks[1].getRawAxis(1)) / 4);
+//        }
         
-        if (joysticks[1].getRawButton(7)) lift.set(1);
-        if (joysticks[1].getRawButton(8)) lift.set(-1);
+//        intakeArm.set(deadband(joysticks[1].getRawAxis(5)));
+
+//        if (joysticks[1].getRawButton(7)) lift.set(1);
+//        if (joysticks[1].getRawButton(8)) lift.set(-1);
         
         SmartDashboard.putNumber("right motor", rightSpeed);
         SmartDashboard.putNumber("left motor", leftSpeed);
@@ -220,15 +254,19 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-        String switchData = "";
-
-        for (DigitalInput digitalInput : limitSwitches) {
-			switchData += String.format("Switch %i is %b  ", digitalInput.get());
-		}
+        //String switchData = "";
         
-        System.out.println(switchData);
+        /*for (int i = 0; i < limitSwitches.length; i++) {
+			switchData += String.format("Switch %d is %b  ", i, limitSwitches[i].get());
+		}*/
         
-        Timer.delay(0.2);
+        //System.out.println(switchData);
+        SmartDashboard.putBoolean("Limit Switches armBack", armBack.get());
+        SmartDashboard.putBoolean("Limit Switches ballLoaded", ballLoaded.get());
+        SmartDashboard.putBoolean("Limit Switches intakeArm", intakeArm.get());
+        SmartDashboard.putBoolean("Limit Switches armForward", armForward.get());
+        SmartDashboard.putBoolean("Ball Loaded", ballLoaded.get());
+//        Timer.delay(0.2);
     }
 
     double deadband(double rawValue) {
@@ -252,11 +290,7 @@ public class Robot extends IterativeRobot {
      * @return value of joystick for given motor
      */
     double getMotor(int side) {
-        if (useGamepad) {
-            return joysticks[0].getRawAxis(side * 4 + 1);
-        } else {
-            return joysticks[side].getAxis(Joystick.AxisType.kY);
-        }
+        return joysticks[0].getRawAxis(side * 4 + 1);
     }
 
     /**
@@ -265,17 +299,21 @@ public class Robot extends IterativeRobot {
      * @return true if reduced speed, false if not
      */
     boolean getSpeedMapping() {
-        if (useGamepad) {
-            return joysticks[0].getRawAxis(3) > 0.5 ? true : false;
-        } else {
-            // TODO: check if Joystick.ButtonType.kTrigger works.
-            return joysticks[1].getRawButton(1);
-        }
+        return joysticks[0].getRawButton(10);
     }
 
     // Reset sensors
     void resetSensors() {
         gyro.reset();
     }
-
+    
+    void drive(double left, double right) {
+    	leftDrive.set(left);
+    	rightDrive.set(right);
+    }
+    
+    void drive(double speed) {
+    	leftDrive.set(speed);
+    	rightDrive.set(speed);
+    }
 }
