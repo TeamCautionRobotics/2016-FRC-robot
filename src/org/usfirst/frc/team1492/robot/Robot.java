@@ -2,6 +2,7 @@ package org.usfirst.frc.team1492.robot;
 
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
@@ -42,6 +43,8 @@ public class Robot extends IterativeRobot {
     VictorSP intakeArm;
     VictorSP lift;
 
+    DigitalInput[] limitSwitches;
+    
     // Sensors
     Gyro gyro;
 
@@ -67,6 +70,11 @@ public class Robot extends IterativeRobot {
             joysticks[1] = new Joystick(1);
         }
 
+        limitSwitches = new DigitalInput[4];
+        for (int i = 0; i < limitSwitches.length; i++) {
+			 limitSwitches[i] = new DigitalInput(i);
+		}
+        
         leftDrive  = new VictorSP(0);
         rightDrive = new VictorSP(1);
         conveyor   = new VictorSP(2);
@@ -132,8 +140,8 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-        double leftSpeed = deadband(getMotor(0));
-        double rightSpeed = deadband(getMotor(1));
+        double leftSpeed = deadband(getMotor(1));
+        double rightSpeed = deadband(getMotor(0));
         double blobVal = axisCam.getNumber("BLOB_COUNT", 0.0);
 
 
@@ -168,13 +176,13 @@ public class Robot extends IterativeRobot {
          * Invert left y axis so motor turns in the correct direction. The left
          * and right sides have to be inverted because the motors are mirrored
          */
-        leftDrive.set(-leftSpeed);
-        rightDrive.set(rightSpeed);
+        leftDrive.set(leftSpeed);
+        rightDrive.set(-rightSpeed);
         
         boolean conveyorButton = false;
         if (!conveyorButton) {
         	conveyorButton = true;
-        	if (joysticks[0].getRawButton(6)) conveyor.set(100);
+        	if (joysticks[0].getRawButton(6)) conveyor.set(1);
         } else {
         	conveyorButton = false;
         	if (joysticks[0].getRawButton(6)) conveyor.set(0);
@@ -183,23 +191,22 @@ public class Robot extends IterativeRobot {
         boolean intakeButton = false;
         if (!intakeButton) {
         	intakeButton = true;
-        	if (joysticks[0].getRawButton(5)) intake.set(100);
+        	if (joysticks[0].getRawButton(5)) intake.set(1);
         } else {
         	intakeButton = false;
         	if (joysticks[0].getRawButton(5)) intake.set(0);
         }
         
         // Partner Remote
-        if (joysticks[1].getRawButton(3)) shooter.set(100);
+        if (joysticks[1].getRawButton(3)) shooter.set(1);
         if (joysticks[1].getRawButton(2)) shooter.set(0);
         
-        if (joysticks[1].getRawButton(4)) arm.set(50);
-        if (joysticks[1].getRawButton(1)) arm.set(-50);
+        arm.set(deadband(joysticks[1].getRawAxis(1)));
         
-        intakeArm.set(joysticks[1].getRawAxis(5));
+        intakeArm.set(deadband(joysticks[1].getRawAxis(5)));
         
-        if (joysticks[1].getRawButton(7)) lift.set(100);
-        if (joysticks[1].getRawButton(8)) lift.set(-100);
+        if (joysticks[1].getRawButton(7)) lift.set(1);
+        if (joysticks[1].getRawButton(8)) lift.set(-1);
         
         SmartDashboard.putNumber("right motor", rightSpeed);
         SmartDashboard.putNumber("left motor", leftSpeed);
@@ -213,19 +220,14 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-        String joyData = "";
-        String buttonData = "";
+        String switchData = "";
 
-        for (int i = 0; i < axisCount; i++) {
-            joyData = joyData + String.format("axis %d is %b  ", i, joysticks[0].getRawAxis(i));
-        }
-        for (int i = 0; i < buttonCount; i++) {
-            buttonData = buttonData + String.format("button %d is %b  ", i + 1, joysticks[0].getRawAxis(i + 1));
-        }
-
-        System.out.println(joyData);
-        System.out.println(buttonData);
-
+        for (DigitalInput digitalInput : limitSwitches) {
+			switchData += "".format("Switch %i is %b  ", digitalInput.get());
+		}
+        
+        System.out.println(switchData);
+        
         Timer.delay(0.2);
     }
 
