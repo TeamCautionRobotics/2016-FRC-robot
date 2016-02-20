@@ -57,7 +57,7 @@ public class Robot extends IterativeRobot {
 
         axisCam = NetworkTable.getTable("SmartDashboard");
 
-        joysticks = new Joystick[useGamepad ? 1 : 2];
+        joysticks = new Joystick[useGamepad ? 2 : 2];
 
         if (useGamepad) {
             joysticks[0] = new Joystick(0);
