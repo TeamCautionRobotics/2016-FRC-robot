@@ -201,7 +201,7 @@ public class Robot extends IterativeRobot {
         if (joysticks[1].getRawButton(3)) shooter.set(1);
         if (joysticks[1].getRawButton(2)) shooter.set(0);
         
-        arm.set(deadband(joysticks[1].getRawAxis(1)));
+        arm.set(deadband(joysticks[1].getRawAxis(1)) / 4);
         
         intakeArm.set(deadband(joysticks[1].getRawAxis(5)));
         
