@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
-import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -197,7 +196,7 @@ public class Robot extends IterativeRobot {
 		if (joysticks[0].getRawButton(5)) {
         	intake.set(0.5);
         } else if(reverse) {
-        	intake.set(-0.5);
+        	intake.set(-1);
         } else {
         	intake.set(0);
         }
@@ -207,7 +206,7 @@ public class Robot extends IterativeRobot {
         if (joysticks[1].getRawButton(1)) {
         	shooter.set(1);
         } else if(reverse) {
-        	shooter.set(-0.5);
+        	shooter.set(-1);
         } else {
         	shooter.set(0);
         }
@@ -215,9 +214,17 @@ public class Robot extends IterativeRobot {
         if (joysticks[1].getRawButton(6)) {
         	conveyor.set(0.5);
         } else if(reverse) {
-        	conveyor.set(-0.5);
+        	conveyor.set(-1);
         } else {
         	conveyor.set(0);
+        }
+        
+        if (joysticks[0].getRawButton(6)) {
+            conveyor.set(0.5);
+        } else if(reverse) {
+            conveyor.set(-1);
+        } else {
+            conveyor.set(0);
         }
         
         // - forward
@@ -248,6 +255,7 @@ public class Robot extends IterativeRobot {
         double angle = gyro.getAngle();
         SmartDashboard.putNumber("Gyro", angle);
 
+        testPeriodic();
     }
 
     /**
