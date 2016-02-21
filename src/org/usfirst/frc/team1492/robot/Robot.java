@@ -156,8 +156,6 @@ public class Robot extends IterativeRobot {
         double rightSpeed = deadband(getMotor(0));
         double blobVal = axisCam.getNumber("BLOB_COUNT", 0.0);
 
-        testPeriodic();
-        
         SmartDashboard.putNumber("Cam Value Blob", blobVal);
 
         SmartDashboard.putNumber("left joy db", leftSpeed);
@@ -255,7 +253,11 @@ public class Robot extends IterativeRobot {
         double angle = gyro.getAngle();
         SmartDashboard.putNumber("Gyro", angle);
 
-        testPeriodic();
+        SmartDashboard.putBoolean("Limit Switches armBack", armBack.get());
+        SmartDashboard.putBoolean("Limit Switches ballLoaded", ballLoaded.get());
+        SmartDashboard.putBoolean("Limit Switches intakeArm", intakeArm.get());
+        SmartDashboard.putBoolean("Limit Switches armForward", armForward.get());
+        SmartDashboard.putBoolean("Ball Loaded", ballLoaded.get());
     }
 
     /**
