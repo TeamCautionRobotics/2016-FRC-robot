@@ -135,9 +135,9 @@ public class Robot extends IterativeRobot {
     public void autonomousPeriodic() {
         switch (autoSelected) {
         case moatAuto:
-            drive(.5);
+            setDrive(.5);
             Timer.delay(2);
-            drive(0);
+            setDrive(0);
             break;
         case noAuto:
         default:
@@ -167,7 +167,6 @@ public class Robot extends IterativeRobot {
             rightSpeed /= 2;
         }
 
-        // Driver Remote
         /**
          * Invert right y axis so motor turns in the correct direction. The left
          * and right sides have to be inverted because the motors are mirrored
@@ -175,6 +174,8 @@ public class Robot extends IterativeRobot {
         leftDrive.set(leftSpeed);
         rightDrive.set(-rightSpeed);
 
+
+        // Driver Remote
         boolean reverse = joysticks[0].getRawAxis(2) > .2;
         if (joysticks[0].getRawButton(Buttons.LEFT_BUMPER)) {
             intake.set(0.5);
@@ -301,12 +302,12 @@ public class Robot extends IterativeRobot {
         gyro.reset();
     }
 
-    void drive(double left, double right) {
+    void setDrive(double left, double right) {
         leftDrive.set(left);
         rightDrive.set(right);
     }
 
-    void drive(double speed) {
+    void setDrive(double speed) {
         leftDrive.set(speed);
         rightDrive.set(speed);
     }
