@@ -54,6 +54,18 @@ public class Robot extends IterativeRobot {
     DigitalInput intakeArmDown;
     DigitalInput armForward;
 
+    class Buttons {
+        public final static int A = 1;
+        public final static int B = 2;
+        public final static int X = 3;
+        public final static int Y = 4;
+        // Above analog trigger
+        public final static int LEFT_BUMPER = 5, RIGHT_BUMPER = 6;
+        public final static int BACK = 7, START = 8;
+        // Joystick click
+        public final static int LEFT_JOYSTICK = 9, RIGHT_JOYSTICK = 10;
+    }
+
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -168,20 +180,6 @@ public class Robot extends IterativeRobot {
             rightSpeed /= 2;
         }
 
-        /*
-         * Button Mapping
-         * 1: A
-         * 2: B
-         * 3: X
-         * 4: Y
-         * 5: Left Bumper
-         * 6: Right Bumper
-         * 7: Back
-         * 8: Start
-         * 9: Left Joystick
-         * 10: Right Joystick
-         */
-        
         // Driver Remote
         /**
          * Invert left y axis so motor turns in the correct direction. The left
@@ -191,33 +189,33 @@ public class Robot extends IterativeRobot {
         rightDrive.set(-rightSpeed);
         
         boolean reverse = joysticks[0].getRawAxis(2) > .2;
-		if (joysticks[0].getRawButton(5)) {
         	intake.set(0.5);
         } else if(reverse) {
         	intake.set(-1);
+        if (joysticks[0].getRawButton(Buttons.LEFT_BUMPER)) {
         } else {
         	intake.set(0);
         }
         
         // Partner
         
-        if (joysticks[1].getRawButton(1)) {
         	shooter.set(1);
         } else if(reverse) {
         	shooter.set(-1);
+        if (joysticks[1].getRawButton(Buttons.A)) {
         } else {
         	shooter.set(0);
         }
         
-        if (joysticks[1].getRawButton(6)) {
         	conveyor.set(0.5);
         } else if(reverse) {
         	conveyor.set(-1);
+        if (joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
         } else {
         	conveyor.set(0);
         }
         
-        if (joysticks[0].getRawButton(6)) {
+        if (joysticks[0].getRawButton(Buttons.RIGHT_BUMPER)) {
             conveyor.set(0.5);
         } else if(reverse) {
             conveyor.set(-1);
