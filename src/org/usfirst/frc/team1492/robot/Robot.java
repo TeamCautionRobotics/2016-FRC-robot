@@ -42,7 +42,7 @@ public class Robot extends IterativeRobot {
     VictorSP arm;
     VictorSP intake;
 //    VictorSP intakeArm;
-//    VictorSP lift;
+    VictorSP lift;
 
     DigitalInput[] limitSwitches;
     
@@ -91,7 +91,7 @@ public class Robot extends IterativeRobot {
         arm        = new VictorSP(4);
         intake     = new VictorSP(5);
 //        intakeArm  = new VictorSP(6);
-//        lift       = new VictorSP(7);
+        lift = new VictorSP(7);
 
         autoChooser = new SendableChooser();
         autoChooser.addDefault("Nothing", noAuto);
@@ -245,6 +245,8 @@ public class Robot extends IterativeRobot {
 //        if (joysticks[1].getRawButton(7)) lift.set(1);
 //        if (joysticks[1].getRawButton(8)) lift.set(-1);
         
+        lift.set(deadband(joysticks[1].getRawAxis(5)));
+
         SmartDashboard.putNumber("right motor", rightSpeed);
         SmartDashboard.putNumber("left motor", leftSpeed);
 
