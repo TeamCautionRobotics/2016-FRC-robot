@@ -164,8 +164,8 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-        double leftSpeed = deadband(getMotor(1));
-        double rightSpeed = deadband(getMotor(0));
+        double leftSpeed = deadband(getMotor(Side.LEFT));
+        double rightSpeed = deadband(getMotor(Side.RIGHT));
         double blobVal = axisCam.getNumber("BLOB_COUNT", 0.0);
 
         SmartDashboard.putNumber("Cam Value Blob", blobVal);
@@ -282,13 +282,17 @@ public class Robot extends IterativeRobot {
     /**
      * Returns the y value of the joystick for the respective motor.
      *
-     * @param side 0 for left 1 for right
+     * @param side false for left  true for right
      * @return value of joystick for given motor
      */
-    double getMotor(int side) {
-        return joysticks[0].getRawAxis(side * 4 + 1);
+    double getMotor(boolean side) {
+        return joysticks[0].getRawAxis(side ? 0 : 5);
     }
 
+    class Side {
+        public final static boolean LEFT = false;
+        public final static boolean RIGHT = true;
+    }
     /**
      * Determines whether to use the reduced speed mode
      *
