@@ -32,7 +32,6 @@ public class Robot extends IterativeRobot {
 
     Joystick[] joysticks;
 
-
     VictorSP leftDrive;
     VictorSP rightDrive;
     VictorSP conveyor;
@@ -64,6 +63,7 @@ public class Robot extends IterativeRobot {
         public final static int LEFT_JOYSTICK = 9, RIGHT_JOYSTICK = 10;
     }
 
+
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -88,7 +88,7 @@ public class Robot extends IterativeRobot {
         autoChooser.addDefault("Nothing", noAuto);
         autoChooser.addObject("Moat", moatAuto);
 
-        SmartDashboard.putData("Autonomouse mode chooser", autoChooser);
+        SmartDashboard.putData("Autonomous mode chooser", autoChooser);
 
         // Sensors
         gyro = new AnalogGyro(1);
@@ -113,6 +113,7 @@ public class Robot extends IterativeRobot {
 
         resetSensors();
     }
+
 
     /**
      * This autonomous (along with the chooser code above) shows how to select
@@ -145,6 +146,7 @@ public class Robot extends IterativeRobot {
         }
     }
 
+
     /**
      * This function is called periodically during operator control
      */
@@ -167,7 +169,7 @@ public class Robot extends IterativeRobot {
 
         // Driver Remote
         /**
-         * Invert left y axis so motor turns in the correct direction. The left
+         * Invert right y axis so motor turns in the correct direction. The left
          * and right sides have to be inverted because the motors are mirrored
          */
         leftDrive.set(leftSpeed);
@@ -242,6 +244,7 @@ public class Robot extends IterativeRobot {
         testPeriodic();
     }
 
+
     /**
      * This function is called periodically during test mode
      */
@@ -268,6 +271,7 @@ public class Robot extends IterativeRobot {
         return 0;
     }
 
+
     /**
      * Returns the y value of the joystick for the respective motor.
      *
@@ -282,6 +286,7 @@ public class Robot extends IterativeRobot {
         public final static boolean LEFT = false;
         public final static boolean RIGHT = true;
     }
+
     /**
      * Determines whether to use the reduced speed mode
      *
