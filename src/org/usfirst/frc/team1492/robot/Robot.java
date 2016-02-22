@@ -32,7 +32,6 @@ public class Robot extends IterativeRobot {
 
     Joystick[] joysticks;
 
-    int axisCount, buttonCount;
 
     VictorSP leftDrive;
     VictorSP rightDrive;
