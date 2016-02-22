@@ -63,6 +63,11 @@ public class Robot extends IterativeRobot {
         public final static int LEFT_JOYSTICK = 9, RIGHT_JOYSTICK = 10;
     }
 
+    class Axises {
+        public final static int LEFT_X = 0, LEFT_Y = 1;
+        public final static int LEFT_TRIGGER = 2, RIGHT_TRIGGER = 3;
+        public final static int RIGHT_X = 4, RIGHT_Y = 5;
+    }
 
     /**
      * This function is run when the robot is first started up and should be
@@ -176,7 +181,7 @@ public class Robot extends IterativeRobot {
 
 
         // Driver Remote
-        boolean reverse = joysticks[0].getRawAxis(2) > .2;
+        boolean reverse = joysticks[0].getRawAxis(Axises.LEFT_TRIGGER) > .2;
         if (joysticks[0].getRawButton(Buttons.LEFT_BUMPER)) {
             intake.set(0.5);
         } else if (reverse) {
@@ -217,11 +222,11 @@ public class Robot extends IterativeRobot {
         // go - if forward is not pressed
 
         if (!armBack.get()) {
-            arm.set(Math.min(0, deadband(joysticks[1].getRawAxis(1))));
+            arm.set(Math.min(0, deadband(joysticks[1].getRawAxis(Axises.LEFT_Y))));
         } else if (!armForward.get()) {
-            arm.set(Math.max(0, deadband(joysticks[1].getRawAxis(1))));
+            arm.set(Math.max(0, deadband(joysticks[1].getRawAxis(Axises.LEFT_Y))));
         } else {
-            arm.set(deadband(joysticks[1].getRawAxis(1)));
+            arm.set(deadband(joysticks[1].getRawAxis(Axises.LEFT_Y)));
         }
 
         // if ((!armBack.get() && joysticks[1].getRawAxis(1) < 0) ||
@@ -234,7 +239,7 @@ public class Robot extends IterativeRobot {
         // if (joysticks[1].getRawButton(7)) lift.set(1);
         // if (joysticks[1].getRawButton(8)) lift.set(-1);
 
-        lift.set(deadband(joysticks[1].getRawAxis(5)));
+        lift.set(deadband(joysticks[1].getRawAxis(Axises.RIGHT_Y)));
 
         SmartDashboard.putNumber("right motor", rightSpeed);
         SmartDashboard.putNumber("left motor", leftSpeed);
@@ -280,7 +285,7 @@ public class Robot extends IterativeRobot {
      * @return value of joystick for given motor
      */
     double getMotor(boolean side) {
-        return joysticks[0].getRawAxis(side ? 0 : 5);
+        return joysticks[0].getRawAxis(side ? Axises.LEFT_Y : Axises.RIGHT_Y);
     }
 
     class Side {
