@@ -51,7 +51,7 @@ public class Robot extends IterativeRobot {
     
     DigitalInput armBack;
     DigitalInput ballLoaded;
-    DigitalInput intakeArm;
+    DigitalInput intakeArmDown;
     DigitalInput armForward;
 
     /**
@@ -253,30 +253,18 @@ public class Robot extends IterativeRobot {
         double angle = gyro.getAngle();
         SmartDashboard.putNumber("Gyro", angle);
 
-        SmartDashboard.putBoolean("Limit Switches armBack", armBack.get());
-        SmartDashboard.putBoolean("Limit Switches ballLoaded", ballLoaded.get());
-        SmartDashboard.putBoolean("Limit Switches intakeArm", intakeArm.get());
-        SmartDashboard.putBoolean("Limit Switches armForward", armForward.get());
-        SmartDashboard.putBoolean("Ball Loaded", ballLoaded.get());
+        testPeriodic();
     }
 
     /**
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-        //String switchData = "";
-        
-        /*for (int i = 0; i < limitSwitches.length; i++) {
-			switchData += String.format("Switch %d is %b  ", i, limitSwitches[i].get());
-		}*/
-        
-        //System.out.println(switchData);
         SmartDashboard.putBoolean("Limit Switches armBack", armBack.get());
         SmartDashboard.putBoolean("Limit Switches ballLoaded", ballLoaded.get());
-        SmartDashboard.putBoolean("Limit Switches intakeArm", intakeArm.get());
+        SmartDashboard.putBoolean("Limit Switches intakeArmDown", intakeArmDown.get());
         SmartDashboard.putBoolean("Limit Switches armForward", armForward.get());
         SmartDashboard.putBoolean("Ball Loaded", ballLoaded.get());
-//        Timer.delay(0.2);
     }
 
     double deadband(double rawValue) {
