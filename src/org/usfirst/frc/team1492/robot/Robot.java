@@ -289,7 +289,7 @@ public class Robot extends IterativeRobot {
      * @return true if reduced speed, false if not
      */
     boolean getSpeedMapping() {
-        return joysticks[0].getRawButton(10);
+        return joysticks[0].getRawButton(Buttons.LEFT_JOYSTICK);
     }
 
     // Reset sensors
