@@ -92,7 +92,7 @@ public class Robot extends IterativeRobot {
         
         armBack = new DigitalInput(1);
         ballLoaded = new DigitalInput(2);
-        intakeArm = new DigitalInput(3);
+        intakeArmDown = new DigitalInput(3);
         armForward = new DigitalInput(4);
 
         // Camera
