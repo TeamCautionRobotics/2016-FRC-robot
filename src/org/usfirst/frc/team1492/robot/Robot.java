@@ -259,7 +259,6 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putBoolean("Limit Switches ballLoaded", ballLoaded.get());
         SmartDashboard.putBoolean("Limit Switches intakeArmDown", intakeArmDown.get());
         SmartDashboard.putBoolean("Limit Switches armForward", armForward.get());
-        SmartDashboard.putBoolean("Ball Loaded", ballLoaded.get());
     }
 
 
