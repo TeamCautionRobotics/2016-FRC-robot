@@ -23,6 +23,8 @@ public class Robot extends IterativeRobot {
     final String noAuto   = "Nothing";
     final String moatAuto = "Moat";
 
+    final boolean cameraConnected = false;
+
     String autoSelected;
     SendableChooser autoChooser;
 
@@ -104,16 +106,17 @@ public class Robot extends IterativeRobot {
         armForward = new DigitalInput(4);
 
         // Camera
-        server = CameraServer.getInstance();
-        server.setQuality(50);
-
-        // Iterate through camera ids (0 to 3) to find camera (if connected)
-        for (int i = 0; i < 4; i++) {
-            server.startAutomaticCapture("cam" + i);
-            if (server.isAutoCaptureStarted()) {
-                System.out.println("Camera found at " + i);
-                break;
-            }
+        if (cameraConnected) {
+            server = CameraServer.getInstance();
+            server.setQuality(50);
+            // Iterate through camera ids (0 to 3) to find camera (if connected)
+            for (int i = 0; i < 4; i++) {
+                server.startAutomaticCapture("cam" + i);
+                if (server.isAutoCaptureStarted()) {
+                    System.out.println("Camera found at " + i);
+                    break;
+                }
+            } 
         }
 
         resetSensors();
