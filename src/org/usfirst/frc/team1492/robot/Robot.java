@@ -34,8 +34,8 @@ public class Robot extends IterativeRobot {
 
     Joystick[] joysticks;
 
-    VictorSP leftDrive;
     VictorSP rightDrive;
+    VictorSP leftDrive;
     VictorSP conveyor;
     VictorSP shooter;
     VictorSP arm;
@@ -82,8 +82,8 @@ public class Robot extends IterativeRobot {
         joysticks[0] = new Joystick(0);
         joysticks[1] = new Joystick(1);
 
-        leftDrive = new VictorSP(0);
-        rightDrive = new VictorSP(1);
+        rightDrive = new VictorSP(0);
+        leftDrive = new VictorSP(1);
         conveyor = new VictorSP(2);
         shooter = new VictorSP(3);
         arm = new VictorSP(4);
@@ -179,7 +179,6 @@ public class Robot extends IterativeRobot {
          * Invert right y axis so motor turns in the correct direction. The left
          * and right sides have to be inverted because the motors are mirrored
          */
-        setDrive(leftSpeed, -rightSpeed);
 
 
         // Driver Remote
@@ -191,6 +190,7 @@ public class Robot extends IterativeRobot {
         } else {
             intake.set(0);
         }
+        setDrive(-leftSpeed, rightSpeed);
 
         // Partner
 
