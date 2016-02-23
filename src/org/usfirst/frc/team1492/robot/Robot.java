@@ -228,13 +228,11 @@ public class Robot extends IterativeRobot {
             arm.set(deadband(joysticks[1].getRawAxis(Axises.LEFT_Y)));
         }
 
-        // if ((!armBack.get() && joysticks[1].getRawAxis(1) < 0) ||
-        // (!armForward.get() && joysticks[1].getRawAxis(1) > 0)) {
-        // arm.set(deadband(joysticks[1].getRawAxis(1)) / 4);
-        // }
+
         // TODO: Move this or lift to different axis on controller
         // intakeArm.set(deadband(joysticks[1].getRawAxis(5)));
-        //
+
+
         // if (joysticks[1].getRawButton(7)) lift.set(1);
         // if (joysticks[1].getRawButton(8)) lift.set(-1);
 
@@ -246,7 +244,7 @@ public class Robot extends IterativeRobot {
         double angle = gyro.getAngle();
         SmartDashboard.putNumber("Gyro", angle);
 
-        testPeriodic();
+        sendDSUpdate();
     }
 
 
@@ -254,13 +252,19 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
+        sendDSUpdate();
+    }
+
+
+    // Debug functions
+    void sendDSUpdate() {
         SmartDashboard.putBoolean("Limit Switches armBack", armBack.get());
         SmartDashboard.putBoolean("Limit Switches ballLoaded", ballLoaded.get());
         SmartDashboard.putBoolean("Limit Switches intakeArmDown", intakeArmDown.get());
         SmartDashboard.putBoolean("Limit Switches armForward", armForward.get());
     }
 
-
+    // Robot drive system utility functions:
     double deadband(double rawValue) {
         return deadband(rawValue, 0.2);
     }
@@ -290,6 +294,7 @@ public class Robot extends IterativeRobot {
         public final static boolean LEFT = false;
         public final static boolean RIGHT = true;
     }
+
 
     /**
      * Determines whether to use the reduced speed mode
