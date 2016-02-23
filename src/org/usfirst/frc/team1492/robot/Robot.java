@@ -247,7 +247,7 @@ public class Robot extends IterativeRobot {
         double angle = gyro.getAngle();
         SmartDashboard.putNumber("Gyro", angle);
 
-        sendDSUpdate();
+        updateDSLimitSW();
     }
 
 
@@ -255,12 +255,11 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-        sendDSUpdate();
     }
 
 
     // Debug functions
-    void sendDSUpdate() {
+    void updateDSLimitSW() {
         SmartDashboard.putBoolean("Limit Switches armBack", armBack.get());
         SmartDashboard.putBoolean("Limit Switches ballLoaded", ballLoaded.get());
         SmartDashboard.putBoolean("Limit Switches intakeArmDown", intakeArmDown.get());
