@@ -238,8 +238,6 @@ public class Robot extends IterativeRobot {
 
         lift.set(deadband(joysticks[1].getRawAxis(Axises.RIGHT_Y)));
 
-        SmartDashboard.putNumber("right motor", rightSpeed);
-        SmartDashboard.putNumber("left motor", leftSpeed);
 
         double angle = gyro.getAngle();
         SmartDashboard.putNumber("Gyro", angle);
@@ -315,6 +313,8 @@ public class Robot extends IterativeRobot {
      */
 
     void setDrive(double left, double right) {
+        SmartDashboard.putNumber("right motor", right);
+        SmartDashboard.putNumber("left motor", left);
         leftDrive.set(-left);
         rightDrive.set(right);
     }
