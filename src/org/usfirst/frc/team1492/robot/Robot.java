@@ -20,13 +20,44 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 public class Robot extends IterativeRobot {
-    final String noAuto   = "Nothing";
-    final String moatAuto = "Moat";
+	// Auto
+	final String noAuto = "No Auto";
+	final String auto = "Auto";
+	
+	// Low Bar
+    final String lowBar = "Low Bar";
+    
+    // Category A Defenses
+    final String portcullis = "Portcullis";
+    final String chevalDeFrise = "Cheval de Frise";
+    
+    // Category B Defenses
+    final String moat = "Moat";
+    final String ramparts = "Ramparts";
+    
+    // Category C Defenses
+    final String drawbridge = "Drawbridge";
+    final String sallyPort = "Sally Port";
+    
+    // Category D Defenses
+    final String roughTerrain = "Rough Terrain";
+    final String rockWall = "Rock Wall";
+    
+    // No auto
+    final String none = "Nothing";
+    
+    // Shoot or don't shoot
+    final String shoot = "Shoot";
+    final String noShoot = "Do Not Shoot";
 
     final boolean cameraConnected = false;
 
     String autoSelected;
+    String terrainSelected;
+    String shootSelected;
     SendableChooser autoChooser;
+    SendableChooser terrainChooser;
+    SendableChooser shootChooser;
 
     CameraServer server;
 
@@ -92,10 +123,29 @@ public class Robot extends IterativeRobot {
         lift = new VictorSP(7);
 
         autoChooser = new SendableChooser();
-        autoChooser.addDefault("Nothing", noAuto);
-        autoChooser.addObject("Moat", moatAuto);
+        terrainChooser = new SendableChooser();
+        shootChooser = new SendableChooser();
+        
+        autoChooser.addDefault("No Auto", noAuto);
+        autoChooser.addObject("Auto", auto);
+        
+        terrainChooser.addObject("Low Bar", lowBar);
+        terrainChooser.addObject("Portcullis", portcullis);
+        terrainChooser.addObject("Cheval de Frise", chevalDeFrise);
+        terrainChooser.addObject("Moat", moat);
+        terrainChooser.addObject("Ramparts", ramparts);
+        terrainChooser.addObject("Drawbridge", drawbridge);
+        terrainChooser.addObject("Sally Port", sallyPort);
+        terrainChooser.addObject("Rough Terrain", roughTerrain);
+        terrainChooser.addObject("Rock Wall", rockWall);
+        terrainChooser.addDefault("None", none);
+        
+        shootChooser.addDefault("Do Not Shoot", noShoot);
+        shootChooser.addObject("Shoot", shoot);
 
-        SmartDashboard.putData("Autonomous mode chooser", autoChooser);
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+        SmartDashboard.putData("Terrain Chooser", terrainChooser);
+        SmartDashboard.putData("Shoot Chooser", shootChooser);
 
         // Sensors
         gyro = new AnalogGyro(1);
@@ -133,25 +183,129 @@ public class Robot extends IterativeRobot {
      * SendableChooser make sure to add them to the chooser code above as well.
      */
     public void autonomousInit() {
-        autoSelected = (String) autoChooser.getSelected();
-        System.out.println("Auto selected: " + autoSelected);
+    	autoSelected = (String) autoChooser.getSelected();
+    	System.out.println("Auto selected: " + autoSelected);
+        terrainSelected = (String) terrainChooser.getSelected();
+        System.out.println("Terrain selected: " + terrainSelected);
+        shootSelected = (String) shootChooser.getSelected();
+        System.out.println("Shoot selected: " + shootSelected);
     }
 
     /**
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
-        switch (autoSelected) {
-        case moatAuto:
-            setDrive(.5);
-            Timer.delay(2);
-            setDrive(0);
-            break;
-        case noAuto:
-        default:
-            // No auto
-            break;
-        }
+    	switch (autoSelected) {
+    	case auto:
+    		switch (terrainSelected) {
+            case lowBar:
+            	// Drive forward
+            	setDrive(.5);
+            	Timer.delay(2);
+            	setDrive(0);
+            	shootAuto();
+            	break;
+            case portcullis:
+            	// Drive forward
+            	setDrive(.5);
+            	arm.set(-.5);
+            	Timer.delay(.5);
+            	arm.set(0);
+            	Timer.delay(1.5);
+            	setDrive(0);
+            	// Open portcullis
+            	arm.set(.5);
+            	setDrive(.3);
+            	Timer.delay(.5);
+            	arm.set(0);
+            	Timer.delay(2);
+            	setDrive(0);
+            	shootAuto();
+            	break;
+            case chevalDeFrise:
+            	// Drive forward
+            	setDrive(.5);
+            	shootAuto();
+            	break;
+            case moat:
+            	// Drive forward
+                setDrive(.5);
+                Timer.delay(3);
+                setDrive(0);
+                shootAuto();
+                break;
+            case ramparts:
+            	// Drive forward
+            	setDrive(.5);
+            	Timer.delay(1);
+            	// Accelerate one side to get over ramparts
+            	setDrive(.5, .75);
+            	Timer.delay(2);
+            	setDrive(0);
+            	shootAuto();
+            	break;
+            case drawbridge:
+            	// Drive forward
+            	setDrive(.5);
+            	Timer.delay(1);
+            	setDrive(0);
+            	// Pull down drawbridge
+            	intakeArm.set(-.5);
+            	Timer.delay(.25);
+            	setDrive(-.25);
+            	Timer.delay(.5);
+            	intakeArm.set(0);
+            	// Drive through
+            	setDrive(.5);
+            	Timer.delay(2);
+            	setDrive(0);
+            	shootAuto();
+            	break;
+            case sallyPort:
+            	// Drive forward
+            	setDrive(.5);
+            	Timer.delay(2);
+            	setDrive(0);
+            	// Open the sally port
+            	intakeArm.set(.5);
+            	Timer.delay(.25);
+            	setDrive(-.30, -.25);
+            	Timer.delay(.5);
+            	intakeArm.set(0);
+            	// Drive through
+            	setDrive(.30, .25);
+            	Timer.delay(.5);
+            	setDrive(.5);
+            	Timer.delay(1.5);
+            	setDrive(0);
+            	shootAuto();
+            	break;
+            case roughTerrain:
+            	// Drive forward
+            	setDrive(.5);
+            	Timer.delay(3);
+            	setDrive(0);
+            	shootAuto();
+            	break;
+            case rockWall:
+            	// Drive forward
+            	setDrive(.5);
+            	Timer.delay(3);
+            	setDrive(0);
+            	shootAuto();
+            	break;
+            case none:
+            default:
+                // No terrain
+            	shootAuto();
+                break;
+            }
+    		break;
+    	case noAuto:
+    	default:
+    		// No auto
+    		break;
+    	}
     }
 
 
@@ -307,13 +461,27 @@ public class Robot extends IterativeRobot {
         gyro.reset();
     }
 
+    // Auto Shoot Choosers
+    void shootAuto () {
+    	switch(shootSelected) {
+        case shoot:
+        	
+        	break;
+        case noShoot:
+        default:
+        	// No shoot
+        	break;
+        }
+    }
+    
+    
     /**
      * Invert left side so the motor turns in the correct direction. The left
      * and right sides have to be inverted because the motors are mirrored
      */
-
+    
     void setDrive(double left, double right) {
-        SmartDashboard.putNumber("right motor", right);
+    	SmartDashboard.putNumber("right motor", right);
         SmartDashboard.putNumber("left motor", left);
         leftDrive.set(-left);
         rightDrive.set(right);
