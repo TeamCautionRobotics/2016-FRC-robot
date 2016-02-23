@@ -284,7 +284,7 @@ public class Robot extends IterativeRobot {
      * @return value of joystick for given motor
      */
     double getMotor(boolean side) {
-        return joysticks[0].getRawAxis(side ? Axises.LEFT_Y : Axises.RIGHT_Y);
+        return joysticks[0].getRawAxis(side ? Axises.RIGHT_Y : Axises.LEFT_Y);
     }
 
     class Side {
