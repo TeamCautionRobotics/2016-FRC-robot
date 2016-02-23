@@ -175,10 +175,7 @@ public class Robot extends IterativeRobot {
             rightSpeed /= 2;
         }
 
-        /**
-         * Invert right y axis so motor turns in the correct direction. The left
-         * and right sides have to be inverted because the motors are mirrored
-         */
+        setDrive(leftSpeed, rightSpeed);
 
 
         // Driver Remote
@@ -312,13 +309,17 @@ public class Robot extends IterativeRobot {
         gyro.reset();
     }
 
+    /**
+     * Invert left side so the motor turns in the correct direction. The left
+     * and right sides have to be inverted because the motors are mirrored
+     */
+
     void setDrive(double left, double right) {
-        leftDrive.set(left);
+        leftDrive.set(-left);
         rightDrive.set(right);
     }
 
     void setDrive(double speed) {
-        leftDrive.set(speed);
-        rightDrive.set(speed);
+        setDrive(speed, speed);
     }
 }
