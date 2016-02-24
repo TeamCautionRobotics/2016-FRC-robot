@@ -356,42 +356,42 @@ public class Robot extends IterativeRobot {
         setDrive(leftSpeed, rightSpeed);
 
 
-        // Driver Remote
-        boolean reverse = joysticks[1].getRawAxis(Axises.LEFT_TRIGGER) > .2;
-        if (joysticks[0].getRawButton(Buttons.LEFT_BUMPER)) {
-            intake.set(0.5);
-        } else if (reverse) {
-            intake.set(-1);
+        // Run full eject of boulder. Intake, conveyor, and shooter all reverse
+        // This overrides all other boulder transport commands
+        if (joysticks[0].getRawAxis(Axises.LEFT_TRIGGER) > 0.5 || joysticks[1].getRawButton(Buttons.B)) {
+            moveBoulder(Directions.OUT);
         } else {
-            intake.set(0);
-        }
-        setDrive(-leftSpeed, rightSpeed);
+            // Intake
+            // Only one of the bumpers should be pressed. If both are pressed then the motor will stop
+            if (joysticks[0].getRawButton(Buttons.LEFT_BUMPER) ^ joysticks[0].getRawButton(Buttons.RIGHT_BUMPER)) {
+                if (joysticks[0].getRawButton(Buttons.LEFT_BUMPER)) {
+                    moveIntake(Directions.OUT);
+                } else if (joysticks[0].getRawButton(Buttons.RIGHT_BUMPER)) {
+                    moveIntake(Directions.IN);
+                }
+            } else {
+                moveIntake(Directions.STOP);
+            }
 
-        // Partner
+            // Conveyor - left bumper out; left trigger in
+            if (joysticks[1].getRawButton(Buttons.LEFT_BUMPER) ^ joysticks[1].getRawAxis(Axises.LEFT_TRIGGER) > 0.5) {
+                if (joysticks[1].getRawButton(Buttons.LEFT_BUMPER)) {
+                    moveConveyor(Directions.OUT);
+                } else if (joysticks[1].getRawAxis(Axises.LEFT_TRIGGER) > 0.5) {
+                    moveConveyor(Directions.IN);
+                }
+            } else {
+                moveConveyor(Directions.STOP);
+            }
 
-        if (joysticks[1].getRawButton(Buttons.A)) {
-            shooter.set(1);
-        } else if (reverse) {
-            shooter.set(-1);
-        } else {
-            shooter.set(0);
+            // Shooter
+            if (joysticks[1].getRawAxis(Axises.RIGHT_TRIGGER) > 0.5) {
+                moveShooter(Directions.OUT);
+            } else {
+                moveShooter(Directions.STOP);
+            }
         }
 
-        if (joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
-            conveyor.set(0.5);
-        } else if (reverse) {
-            conveyor.set(-1);
-        } else {
-            conveyor.set(0);
-        }
-
-        if (joysticks[0].getRawButton(Buttons.RIGHT_BUMPER)) {
-            conveyor.set(0.5);
-        } else if (reverse) {
-            conveyor.set(-1);
-        } else {
-            conveyor.set(0);
-        }
 
         // - forward
         // + backward
@@ -405,16 +405,6 @@ public class Robot extends IterativeRobot {
         } else {
             arm.set(deadband(joysticks[1].getRawAxis(Axises.LEFT_Y)));
         }
-
-
-        // TODO: Move this or lift to different axis on controller
-        // intakeArm.set(deadband(joysticks[1].getRawAxis(5)));
-
-
-        // if (joysticks[1].getRawButton(7)) lift.set(1);
-        // if (joysticks[1].getRawButton(8)) lift.set(-1);
-
-        lift.set(deadband(joysticks[1].getRawAxis(Axises.RIGHT_Y)));
 
 
         double angle = gyro.getAngle();
@@ -438,6 +428,71 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putBoolean("Limit Switches intakeArmDown", intakeArmDown.get());
         SmartDashboard.putBoolean("Limit Switches armForward", armForward.get());
     }
+
+    void getBoulderSpeeds() {
+        SmartDashboard.putNumber("Shooter forward speed",   1);
+        SmartDashboard.putNumber("Shooter backward speed",  1);
+        SmartDashboard.putNumber("Conveyor forward speed",  1);
+        SmartDashboard.putNumber("Conveyor backward speed", 1);
+        SmartDashboard.putNumber("Intake forward speed",    1);
+        SmartDashboard.putNumber("Intake backward speed",   1);
+    }
+
+
+    enum Directions {
+        STOP, IN, OUT
+    }
+
+    void moveIntake(Directions direction) {
+        switch (direction) {
+        case STOP:
+            intake.set(0);
+            break;
+        case IN:
+            intake.set(SmartDashboard.getNumber("Intake forward speed", 1));
+            break;
+        case OUT:
+            intake.set(-SmartDashboard.getNumber("Intake backward speed", 1));
+            break;
+        }
+    }
+
+    void moveConveyor(Directions direction) {
+        switch (direction) {
+        case STOP:
+            conveyor.set(0);
+            break;
+        case IN:
+            conveyor.set(SmartDashboard.getNumber("Conveyor forward speed", 1));
+            break;
+        case OUT:
+            conveyor.set(-SmartDashboard.getNumber("Conveyor backward speed", 1));
+            break;
+        }
+    }
+
+    void moveShooter(Directions direction) {
+        switch (direction) {
+        case STOP:
+            shooter.set(0);
+            break;
+        case IN:
+            shooter.set(-SmartDashboard.getNumber("Shooter forward speed", 1));
+            break;
+        case OUT:
+            shooter.set(SmartDashboard.getNumber("Shooter backward speed", 1));
+            break;
+        }
+    }
+
+    void moveBoulder(Directions boulderDirection) { moveBoulder(boulderDirection, boulderDirection, boulderDirection); }
+    void moveBoulder(Directions intakeDirection, Directions conveyorDirection, Directions shooterDirection) {
+        moveIntake(intakeDirection);
+        moveConveyor(conveyorDirection);
+        moveShooter(shooterDirection);
+    }
+
+
 
     // Robot drive system utility functions:
     double deadband(double rawValue) {
@@ -477,7 +532,7 @@ public class Robot extends IterativeRobot {
      * @return true if reduced speed, false if not
      */
     boolean getSpeedMapping() {
-        return joysticks[0].getRawButton(Buttons.LEFT_JOYSTICK);
+        return joysticks[0].getRawAxis(Axises.LEFT_TRIGGER) > 0.5;
     }
 
     // Reset sensors
