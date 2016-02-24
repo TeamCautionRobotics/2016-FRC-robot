@@ -158,15 +158,15 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putData("Terrain Chooser", terrainChooser);
         SmartDashboard.putData("Shoot Chooser", shootChooser);
 
-        getBoulderSpeeds();
+        initalizeMotorSpeeds();
 
         // Sensors
         gyro = new AnalogGyro(1);
 
-        armBack = new DigitalInput(1);
-        ballLoaded = new DigitalInput(2);
-        intakeArmDown = new DigitalInput(3);
-        armForward = new DigitalInput(4);
+        ballLoaded = new DigitalInput(0);
+        intakeArmDown = new DigitalInput(1);
+        armBack = new DigitalInput(2);
+        armForward = new DigitalInput(3);
 
         // Camera
         if (cameraConnected) {
@@ -376,10 +376,10 @@ public class Robot extends IterativeRobot {
             }
 
             // Conveyor - left bumper out; left trigger in
-            if (joysticks[1].getRawButton(Buttons.LEFT_BUMPER) ^ joysticks[1].getRawAxis(Axises.LEFT_TRIGGER) > 0.5) {
+            if (joysticks[1].getRawButton(Buttons.LEFT_BUMPER) ^ joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
                 if (joysticks[1].getRawButton(Buttons.LEFT_BUMPER)) {
                     moveConveyor(Directions.OUT);
-                } else if (joysticks[1].getRawAxis(Axises.LEFT_TRIGGER) > 0.5) {
+                } else if (joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
                     moveConveyor(Directions.IN);
                 }
             } else {
@@ -388,25 +388,29 @@ public class Robot extends IterativeRobot {
 
             // Shooter
             if (joysticks[1].getRawAxis(Axises.RIGHT_TRIGGER) > 0.5) {
-                moveShooter(Directions.OUT);
+                moveShooter(Directions.IN);
             } else {
                 moveShooter(Directions.STOP);
             }
         }
 
 
-        // - forward
-        // + backward
+        // + forward
+        // - backward
         // go + if back is not pressed
         // go - if forward is not pressed
 
+        double armJoysickPosition = -deadband(joysticks[1].getRawAxis(Axises.LEFT_Y));
+        armJoysickPosition *= SmartDashboard.getNumber("Defense arm max speed");
+
         if (!armBack.get()) {
-            arm.set(Math.min(0, deadband(joysticks[1].getRawAxis(Axises.LEFT_Y))));
+            arm.set(Math.min(0, armJoysickPosition));
         } else if (!armForward.get()) {
-            arm.set(Math.max(0, deadband(joysticks[1].getRawAxis(Axises.LEFT_Y))));
+            arm.set(Math.max(0, armJoysickPosition));
         } else {
-            arm.set(deadband(joysticks[1].getRawAxis(Axises.LEFT_Y)));
+            arm.set(armJoysickPosition);
         }
+
 
 
         double angle = gyro.getAngle();
@@ -431,13 +435,19 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putBoolean("Limit Switches armForward", armForward.get());
     }
 
-    void getBoulderSpeeds() {
-        SmartDashboard.putNumber("Shooter forward speed",   1);
-        SmartDashboard.putNumber("Shooter backward speed",  1);
-        SmartDashboard.putNumber("Conveyor forward speed",  1);
-        SmartDashboard.putNumber("Conveyor backward speed", 1);
-        SmartDashboard.putNumber("Intake forward speed",    1);
-        SmartDashboard.putNumber("Intake backward speed",   1);
+    void initalizeMotorSpeeds() {
+        SmartDashboard.getNumber("Shooter forward speed",   1);
+        SmartDashboard.getNumber("Shooter backward speed",  1);
+        SmartDashboard.getNumber("Conveyor forward speed",  1);
+        SmartDashboard.getNumber("Conveyor backward speed", 1);
+        SmartDashboard.getNumber("Intake forward speed",    1);
+        SmartDashboard.getNumber("Intake backward speed",   1);
+
+        SmartDashboard.getNumber("Lift extend speed",       1);
+        SmartDashboard.getNumber("Lift retract speed",      1);
+
+        SmartDashboard.getNumber("Defense arm max speed",   1);
+        SmartDashboard.getNumber("Intake arm max speed",    1);
     }
 
 
@@ -479,10 +489,10 @@ public class Robot extends IterativeRobot {
             shooter.set(0);
             break;
         case IN:
-            shooter.set(-SmartDashboard.getNumber("Shooter forward speed", 1));
+            shooter.set(SmartDashboard.getNumber("Shooter forward speed", 1));
             break;
         case OUT:
-            shooter.set(SmartDashboard.getNumber("Shooter backward speed", 1));
+            shooter.set(-SmartDashboard.getNumber("Shooter backward speed", 1));
             break;
         }
     }
