@@ -84,6 +84,12 @@ public class Robot extends IterativeRobot {
     DigitalInput intakeArmDown;
     DigitalInput armForward;
 
+    double BLOB_COUNT;
+    double COG_BOX_SIZE;
+    double COG_X;
+    
+    boolean autoMode = true;
+    
     class Buttons {
         public final static int A = 1;
         public final static int B = 2;
@@ -108,6 +114,11 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
         axisCam = NetworkTable.getTable("SmartDashboard");
+        
+    	BLOB_COUNT = axisCam.getNumber("BLOB_COUNT", 0.0);
+        COG_BOX_SIZE = axisCam.getNumber("COG_BOX_SIZE", 0.0);
+        COG_X = axisCam.getNumber("COG_X", 0.0);
+        
 
         joysticks = new Joystick[2];
         joysticks[0] = new Joystick(0);
@@ -195,116 +206,129 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
-    	switch (autoSelected) {
-    	case auto:
-    		switch (terrainSelected) {
-            case lowBar:
-            	// Drive forward
-            	setDrive(.5);
-            	Timer.delay(2);
-            	setDrive(0);
-            	shootAuto();
-            	break;
-            case portcullis:
-            	// Drive forward
-            	setDrive(.5);
-            	arm.set(-.5);
-            	Timer.delay(.5);
-            	arm.set(0);
-            	Timer.delay(1.5);
-            	setDrive(0);
-            	// Open portcullis
-            	arm.set(.5);
-            	setDrive(.3);
-            	Timer.delay(.5);
-            	arm.set(0);
-            	Timer.delay(2);
-            	setDrive(0);
-            	shootAuto();
-            	break;
-            case chevalDeFrise:
-            	// Drive forward
-            	setDrive(.5);
-            	shootAuto();
-            	break;
-            case moat:
-            	// Drive forward
-                setDrive(.5);
-                Timer.delay(3);
-                setDrive(0);
-                shootAuto();
-                break;
-            case ramparts:
-            	// Drive forward
-            	setDrive(.5);
-            	Timer.delay(1);
-            	// Accelerate one side to get over ramparts
-            	setDrive(.5, .75);
-            	Timer.delay(2);
-            	setDrive(0);
-            	shootAuto();
-            	break;
-            case drawbridge:
-            	// Drive forward
-            	setDrive(.5);
-            	Timer.delay(1);
-            	setDrive(0);
-            	// Pull down drawbridge
-            	intakeArm.set(-.5);
-            	Timer.delay(.25);
-            	setDrive(-.25);
-            	Timer.delay(.5);
-            	intakeArm.set(0);
-            	// Drive through
-            	setDrive(.5);
-            	Timer.delay(2);
-            	setDrive(0);
-            	shootAuto();
-            	break;
-            case sallyPort:
-            	// Drive forward
-            	setDrive(.5);
-            	Timer.delay(2);
-            	setDrive(0);
-            	// Open the sally port
-            	intakeArm.set(.5);
-            	Timer.delay(.25);
-            	setDrive(-.30, -.25);
-            	Timer.delay(.5);
-            	intakeArm.set(0);
-            	// Drive through
-            	setDrive(.30, .25);
-            	Timer.delay(.5);
-            	setDrive(.5);
-            	Timer.delay(1.5);
-            	setDrive(0);
-            	shootAuto();
-            	break;
-            case roughTerrain:
-            	// Drive forward
-            	setDrive(.5);
-            	Timer.delay(3);
-            	setDrive(0);
-            	shootAuto();
-            	break;
-            case rockWall:
-            	// Drive forward
-            	setDrive(.5);
-            	Timer.delay(3);
-            	setDrive(0);
-            	shootAuto();
-            	break;
-            case none:
-            default:
-                // No terrain
-            	shootAuto();
-                break;
-            }
-    		break;
-    	case noAuto:
-    	default:
-    		// No auto
-    		break;
+    	if (autoMode) {
+	    	switch (autoSelected) {
+	    	case auto:
+	    		switch (terrainSelected) {
+	            case lowBar:
+	            	// Drive forward
+	            	setDrive(.5);
+	            	Timer.delay(2);
+	            	setDrive(0);
+	            	shootAuto();
+	            	autoMode = false;
+	            	break;
+	            case portcullis:
+	            	// Drive forward
+	            	setDrive(.5);
+	            	arm.set(-.5);
+	            	Timer.delay(.5);
+	            	arm.set(0);
+	            	Timer.delay(1.5);
+	            	setDrive(0);
+	            	// Open portcullis
+	            	arm.set(.5);
+	            	setDrive(.3);
+	            	Timer.delay(.5);
+	            	arm.set(0);
+	            	Timer.delay(2);
+	            	setDrive(0);
+	            	shootAuto();
+	            	autoMode = false;
+	            	break;
+	            case chevalDeFrise:
+	            	// Drive forward
+	            	setDrive(.5);
+	            	shootAuto();
+	            	autoMode = false;
+	            	break;
+	            case moat:
+	            	// Drive forward
+	                setDrive(.5);
+	                Timer.delay(3);
+	                setDrive(0);
+	                shootAuto();
+	                autoMode = false;
+	                break;
+	            case ramparts:
+	            	// Drive forward
+	            	setDrive(.5);
+	            	Timer.delay(1);
+	            	// Accelerate one side to get over ramparts
+	            	setDrive(.5, .75);
+	            	Timer.delay(2);
+	            	setDrive(0);
+	            	shootAuto();
+	            	autoMode = false;
+	            	break;
+	            case drawbridge:
+	            	// Drive forward
+	            	setDrive(.5);
+	            	Timer.delay(1);
+	            	setDrive(0);
+	            	// Pull down drawbridge
+	            	intakeArm.set(-.5);
+	            	Timer.delay(.25);
+	            	setDrive(-.25);
+	            	Timer.delay(.5);
+	            	intakeArm.set(0);
+	            	// Drive through
+	            	setDrive(.5);
+	            	Timer.delay(2);
+	            	setDrive(0);
+	            	shootAuto();
+	            	autoMode = false;
+	            	break;
+	            case sallyPort:
+	            	// Drive forward
+	            	setDrive(.5);
+	            	Timer.delay(2);
+	            	setDrive(0);
+	            	// Open the sally port
+	            	intakeArm.set(.5);
+	            	Timer.delay(.25);
+	            	setDrive(-.30, -.25);
+	            	Timer.delay(.5);
+	            	intakeArm.set(0);
+	            	// Drive through
+	            	setDrive(.30, .25);
+	            	Timer.delay(.5);
+	            	setDrive(.5);
+	            	Timer.delay(1.5);
+	            	setDrive(0);
+	            	shootAuto();
+	            	autoMode = false;
+	            	break;
+	            case roughTerrain:
+	            	// Drive forward
+	            	setDrive(.5);
+	            	Timer.delay(3);
+	            	setDrive(0);
+	            	shootAuto();
+	            	autoMode = false;
+	            	break;
+	            case rockWall:
+	            	// Drive forward
+	            	setDrive(.5);
+	            	Timer.delay(3);
+	            	setDrive(0);
+	            	shootAuto();
+	            	autoMode = false;
+	            	break;
+	            case none:
+	            default:
+	                // No terrain
+	            	shootAuto();
+	            	autoMode = false;
+	                break;
+	            }
+	    		break;
+	    	case noAuto:
+	    	default:
+	    		// No auto
+	    		autoMode = false;
+	    		break;
+	    	}
     	}
     }
 
@@ -333,7 +357,7 @@ public class Robot extends IterativeRobot {
 
 
         // Driver Remote
-        boolean reverse = joysticks[0].getRawAxis(Axises.LEFT_TRIGGER) > .2;
+        boolean reverse = joysticks[1].getRawAxis(Axises.LEFT_TRIGGER) > .2;
         if (joysticks[0].getRawButton(Buttons.LEFT_BUMPER)) {
             intake.set(0.5);
         } else if (reverse) {
@@ -465,7 +489,17 @@ public class Robot extends IterativeRobot {
     void shootAuto () {
     	switch(shootSelected) {
         case shoot:
-        	
+        	if (COG_X >= 160 || BLOB_COUNT == 0) {
+        		setDrive(-.5, .5);
+        	} else if (COG_X >= 160) {
+        		setDrive(.5, -.5);
+        	}
+        	Timer.delay(.1);
+        	shooter.set(.9);
+        	conveyor.set(.5);
+        	Timer.delay(2);
+        	shooter.set(0);
+        	conveyor.set(0);
         	break;
         case noShoot:
         default:
