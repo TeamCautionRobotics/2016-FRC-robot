@@ -51,7 +51,7 @@ public class Robot extends IterativeRobot {
     final String shootLow = "Shoot Low";
     final String noShoot = "Do Not Shoot";
 
-    final boolean cameraConnected = false;
+    final boolean cameraConnected = true;
 
     String autoSelected;
     String terrainSelected;
