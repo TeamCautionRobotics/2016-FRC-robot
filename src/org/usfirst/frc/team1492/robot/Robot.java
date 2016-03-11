@@ -621,11 +621,6 @@ public class Robot extends IterativeRobot {
     void shootAuto () {
         switch(shootSelected) {
         case shootHigh:
-            if (COG_X >= 160 || BLOB_COUNT == 0) {
-                setDrive(-.5, .5);
-            } else if (COG_X >= 160) {
-                setDrive(.5, -.5);
-            }
             Timer.delay(.1);
             shooter.set(.9);
             conveyor.set(.5);
@@ -634,11 +629,6 @@ public class Robot extends IterativeRobot {
             conveyor.set(0);
             break;
         case shootLow:
-            if (COG_X >= 160 || BLOB_COUNT == 0) {
-                setDrive(-.5, .5);
-            } else if (COG_X >= 160) {
-                setDrive(.5, -.5);
-            }
             Timer.delay(.1);
             shooter.set(-1);
             conveyor.set(-1);
