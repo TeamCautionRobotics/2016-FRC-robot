@@ -399,23 +399,29 @@ public class Robot extends IterativeRobot {
 
             // Conveyor - left bumper out; left trigger in
             Directions conveyorDirection = Directions.STOP;
-            if (joysticks[1].getRawButton(Buttons.LEFT_BUMPER) && !joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
-            	conveyorDirection = Directions.OUT;
-            } else if (conveyorInPressed != joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
-            	conveyorInPressed = joysticks[1].getRawButton(Buttons.RIGHT_BUMPER);
-            	ballWasIn = !ballLoaded.get();
-            	conveyorDirection = conveyorInPressed ? Directions.IN :  Directions.STOP;
+            if (joysticks[1].getRawButton(Buttons.LEFT_BUMPER) /* && !joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)*/) {
+                conveyorInPressed = false;
+                conveyorDirection = Directions.OUT;
+            } else if (joysticks[1].getRawButton(Buttons.RIGHT_BUMPER) && !conveyorInPressed) {
+                conveyorInPressed = true;
+                ballWasIn = !ballLoaded.get();
+                conveyorDirection = Directions.IN;
             } else {
             	conveyorInPressed = false;
             	conveyorDirection = Directions.STOP;
             }
 
+            // TODO: Remove SmartDashboard puts when done testing
+            SmartDashboard.putBoolean("ballWasIn", ballWasIn);
+            SmartDashboard.putBoolean("conveyorInPressed", conveyorInPressed);
+            SmartDashboard.putBoolean("ballloaded conveyor", !ballLoaded.get());
+
             if (conveyorInPressed) {
-            	  // ball is in       and ball was not in
-            	if (!ballLoaded.get() && ballWasIn == false) {
-					ballWasIn = true;
-					conveyorDirection = Directions.STOP;
-				}
+                // ball was not in and ball is in
+                if (!ballWasIn && !ballLoaded.get()) {
+                    ballWasIn = true;
+                    conveyorDirection = Directions.STOP;
+                }
             }
             moveConveyor(conveyorDirection);
 
