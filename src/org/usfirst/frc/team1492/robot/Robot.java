@@ -207,6 +207,7 @@ public class Robot extends IterativeRobot {
         System.out.println("Terrain selected: " + terrainSelected);
         shootSelected = (String) shootChooser.getSelected();
         System.out.println("Shoot selected: " + shootSelected);
+        autoMode = true;
     }
 
     /**
@@ -219,8 +220,18 @@ public class Robot extends IterativeRobot {
                 switch (terrainSelected) {
                 case lowBar:
                     // Drive forward
-                    setDrive(.5);
-                    Timer.delay(2);
+//                    while (intakeArmDown.get()) {
+//                        intakeArm.set(-1);
+//                    }
+                    intakeArm.set(0);
+
+                    while (armForward.get()) {
+                        arm.set(-0.5);
+                    }
+                    arm.set(0);
+
+                    setDrive(.4);
+                    Timer.delay(2.5);
                     setDrive(0);
                     shootAuto();
                     autoMode = false;
