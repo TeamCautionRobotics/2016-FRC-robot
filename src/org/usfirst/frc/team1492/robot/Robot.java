@@ -415,6 +415,7 @@ public class Robot extends IterativeRobot {
             SmartDashboard.putBoolean("ballWasIn", ballWasIn);
             SmartDashboard.putBoolean("conveyorInPressed", conveyorInPressed);
             SmartDashboard.putBoolean("ballloaded conveyor", !ballLoaded.get());
+            SmartDashboard.putBoolean("joystick button conveyor in", joysticks[1].getRawButton(Buttons.RIGHT_BUMPER));
 
             if (conveyorInPressed) {
                 // ball was not in and ball is in
