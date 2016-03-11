@@ -47,7 +47,8 @@ public class Robot extends IterativeRobot {
     final String none = "Nothing";
 
     // Shoot or don't shoot
-    final String shoot = "Shoot";
+    final String shootHigh = "Shoot High";
+    final String shootLow = "Shoot Low";
     final String noShoot = "Do Not Shoot";
 
     final boolean cameraConnected = false;
@@ -89,6 +90,9 @@ public class Robot extends IterativeRobot {
     double COG_X;
 
     boolean autoMode = true;
+    
+    boolean conveyorInPressed = false;
+    boolean ballWasIn = false;
 
     class Buttons {
         public final static int A = 1;
@@ -130,7 +134,7 @@ public class Robot extends IterativeRobot {
         shooter = new VictorSP(3);
         arm = new VictorSP(4);
         intake = new VictorSP(5);
-        // intakeArm = new VictorSP(6);
+        intakeArm = new VictorSP(6);
         lift = new VictorSP(7);
 
         autoChooser = new SendableChooser();
@@ -152,7 +156,8 @@ public class Robot extends IterativeRobot {
         terrainChooser.addDefault("None", none);
 
         shootChooser.addDefault("Do Not Shoot", noShoot);
-        shootChooser.addObject("Shoot", shoot);
+        shootChooser.addObject("Shoot High", shootHigh);
+        shootChooser.addObject("Shoot Low", shootLow);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         SmartDashboard.putData("Terrain Chooser", terrainChooser);
@@ -339,6 +344,23 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
+    	
+    	/* Main
+    	 * Drive = Joysticks
+    	 * all out = left trigger
+    	 * intake out = left bumper
+    	 * intake in = right bumper
+    	 * 
+    	 * 
+    	 * Partner
+    	 * conveyor out = left bumper
+    	 * conveyor in = right bumper
+    	 * shooter fire = right trigger
+    	 * arm = left joystick
+    	 * all out = B
+    	 * 
+    	 */
+    	
         double leftSpeed = deadband(getMotor(Side.LEFT));
         double rightSpeed = deadband(getMotor(Side.RIGHT));
         double blobVal = axisCam.getNumber("BLOB_COUNT", 0.0);
@@ -354,7 +376,7 @@ public class Robot extends IterativeRobot {
             leftSpeed /= 2;
             rightSpeed /= 2;
         }
-
+        
         setDrive(leftSpeed, rightSpeed);
 
 
@@ -376,15 +398,26 @@ public class Robot extends IterativeRobot {
             }
 
             // Conveyor - left bumper out; left trigger in
-            if (joysticks[1].getRawButton(Buttons.LEFT_BUMPER) ^ joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
-                if (joysticks[1].getRawButton(Buttons.LEFT_BUMPER)) {
-                    moveConveyor(Directions.OUT);
-                } else if (joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
-                    moveConveyor(Directions.IN);
-                }
+            Directions conveyorDirection = Directions.STOP;
+            if (joysticks[1].getRawButton(Buttons.LEFT_BUMPER) && !joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
+            	conveyorDirection = Directions.OUT;
+            } else if (conveyorInPressed != joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
+            	conveyorInPressed = joysticks[1].getRawButton(Buttons.RIGHT_BUMPER);
+            	ballWasIn = !ballLoaded.get();
+            	conveyorDirection = conveyorInPressed ? Directions.IN :  Directions.STOP;
             } else {
-                moveConveyor(Directions.STOP);
+            	conveyorInPressed = false;
+            	conveyorDirection = Directions.STOP;
             }
+
+            if (conveyorInPressed) {
+            	  // ball is in       and ball was not in
+            	if (!ballLoaded.get() && ballWasIn == false) {
+					ballWasIn = true;
+					conveyorDirection = Directions.STOP;
+				}
+            }
+            moveConveyor(conveyorDirection);
 
             // Shooter
             if (joysticks[1].getRawAxis(Axises.RIGHT_TRIGGER) > 0.5) {
@@ -395,13 +428,13 @@ public class Robot extends IterativeRobot {
         }
 
 
-        // + forward
-        // - backward
-        // go + if back is not pressed
-        // go - if forward is not pressed
+        // - forward
+        // + backward
+        // go - if back is pressed
+        // go + if forward is pressed
 
-        double armJoysickPosition = -deadband(joysticks[1].getRawAxis(Axises.LEFT_Y));
-        armJoysickPosition *= SmartDashboard.getNumber("Defense arm max speed");
+        double armJoysickPosition = deadband(joysticks[1].getRawAxis(Axises.LEFT_Y));
+        armJoysickPosition *= SmartDashboard.getNumber("Defense arm max speed", 1);
 
         if (!armBack.get()) {
             arm.set(Math.min(0, armJoysickPosition));
@@ -411,8 +444,22 @@ public class Robot extends IterativeRobot {
             arm.set(armJoysickPosition);
         }
 
+        double intakeArmJoystickPosition = deadband(joysticks[1].getRawAxis(Axises.RIGHT_Y));
+        if (!intakeArmDown.get()) {
+            intakeArm.set(Math.max(0, intakeArmJoystickPosition));
+        } else {
+            intakeArm.set(intakeArmJoystickPosition);
+        }
 
-
+        
+        if (joysticks[1].getRawButton(Buttons.Y)) {
+           lift.set(-1);
+        } else if (joysticks[1].getRawButton(Buttons.A)) {
+        	lift.set(1);
+        } else {
+        	lift.set(0);
+        }
+        
         double angle = gyro.getAngle();
         SmartDashboard.putNumber("Gyro", angle);
 
@@ -555,7 +602,7 @@ public class Robot extends IterativeRobot {
     // Auto Shoot Choosers
     void shootAuto () {
         switch(shootSelected) {
-        case shoot:
+        case shootHigh:
             if (COG_X >= 160 || BLOB_COUNT == 0) {
                 setDrive(-.5, .5);
             } else if (COG_X >= 160) {
@@ -567,6 +614,21 @@ public class Robot extends IterativeRobot {
             Timer.delay(2);
             shooter.set(0);
             conveyor.set(0);
+            break;
+        case shootLow:
+            if (COG_X >= 160 || BLOB_COUNT == 0) {
+                setDrive(-.5, .5);
+            } else if (COG_X >= 160) {
+                setDrive(.5, -.5);
+            }
+            Timer.delay(.1);
+            shooter.set(-1);
+            conveyor.set(-1);
+            intake.set(-1);
+            Timer.delay(2);
+            shooter.set(0);
+            conveyor.set(0);
+            intake.set(0);
             break;
         case noShoot:
         default:
