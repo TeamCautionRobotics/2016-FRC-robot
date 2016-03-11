@@ -23,6 +23,8 @@ public class Robot extends IterativeRobot {
     // Auto
     final String noAuto = "No Auto";
     final String auto = "Auto";
+    
+    final String autoShort = "Short Auto";
 
     // Low Bar
     final String lowBar = "Low Bar";
@@ -144,6 +146,7 @@ public class Robot extends IterativeRobot {
         autoChooser.addDefault("No Auto", noAuto);
         autoChooser.addObject("Auto", auto);
 
+        terrainChooser.addObject(autoShort, "Short Auto");
         terrainChooser.addObject("Low Bar", lowBar);
         terrainChooser.addObject("Portcullis", portcullis);
         terrainChooser.addObject("Cheval de Frise", chevalDeFrise);
@@ -218,6 +221,12 @@ public class Robot extends IterativeRobot {
             switch (autoSelected) {
             case auto:
                 switch (terrainSelected) {
+                case autoShort:
+                    setDrive(-.4);
+                    Timer.delay(1);
+                    setDrive(0);
+                    autoMode = false;
+                    break;
                 case lowBar:
                     // Drive forward
 //                    while (intakeArmDown.get()) {
@@ -229,9 +238,10 @@ public class Robot extends IterativeRobot {
                         arm.set(-0.5);
                     }
                     arm.set(0);
+                    Timer.delay(.25);
 
-                    setDrive(.4);
-                    Timer.delay(2.5);
+                    setDrive(-.4);
+                    Timer.delay(7);
                     setDrive(0);
                     shootAuto();
                     autoMode = false;
@@ -262,8 +272,8 @@ public class Robot extends IterativeRobot {
                     break;
                 case moat:
                     // Drive forward
-                    setDrive(.5);
-                    Timer.delay(3);
+                    setDrive(-.4);
+                    Timer.delay(7);
                     setDrive(0);
                     shootAuto();
                     autoMode = false;
