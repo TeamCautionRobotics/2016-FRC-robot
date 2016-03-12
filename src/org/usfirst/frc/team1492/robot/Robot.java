@@ -428,7 +428,6 @@ public class Robot extends IterativeRobot {
                 ballWasIn = !ballLoaded.get();
                 conveyorDirection = Directions.IN;
             } else {
-            	conveyorInPressed = false;
             	conveyorDirection = Directions.STOP;
             }
 
@@ -439,6 +438,9 @@ public class Robot extends IterativeRobot {
             SmartDashboard.putBoolean("joystick button conveyor in", joysticks[1].getRawButton(Buttons.RIGHT_BUMPER));
 
             if (conveyorInPressed) {
+                if (!joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
+                    conveyorInPressed = false;
+                }
                 // ball was not in and ball is in
                 if (!ballWasIn && !ballLoaded.get()) {
                     ballWasIn = true;
