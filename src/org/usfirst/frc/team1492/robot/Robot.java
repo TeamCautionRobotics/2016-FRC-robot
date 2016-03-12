@@ -421,11 +421,11 @@ public class Robot extends IterativeRobot {
             // Conveyor - left bumper out; left trigger in
             Directions conveyorDirection = Directions.STOP;
             if (joysticks[1].getRawButton(Buttons.LEFT_BUMPER) /* && !joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)*/) {
-                conveyorInPressed = false;
+//                conveyorInPressed = false;
                 conveyorDirection = Directions.OUT;
-            } else if (joysticks[1].getRawButton(Buttons.RIGHT_BUMPER) && !conveyorInPressed) {
-                conveyorInPressed = true;
-                ballWasIn = !ballLoaded.get();
+            } else if (joysticks[1].getRawButton(Buttons.RIGHT_BUMPER) /*&& !conveyorInPressed*/) {
+//                conveyorInPressed = true;
+//                ballWasIn = !ballLoaded.get();
                 conveyorDirection = Directions.IN;
             } else {
             	conveyorDirection = Directions.STOP;
@@ -437,16 +437,16 @@ public class Robot extends IterativeRobot {
             SmartDashboard.putBoolean("ballloaded conveyor", !ballLoaded.get());
             SmartDashboard.putBoolean("joystick button conveyor in", joysticks[1].getRawButton(Buttons.RIGHT_BUMPER));
 
-            if (conveyorInPressed) {
-                if (!joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
-                    conveyorInPressed = false;
-                }
-                // ball was not in and ball is in
-                if (!ballWasIn && !ballLoaded.get()) {
-                    ballWasIn = true;
-                    conveyorDirection = Directions.STOP;
-                }
-            }
+//            if (conveyorInPressed) {
+//                if (!joysticks[1].getRawButton(Buttons.RIGHT_BUMPER)) {
+//                    conveyorInPressed = false;
+//                }
+//                // ball was not in and ball is in
+//                if (!ballWasIn && !ballLoaded.get()) {
+//                    ballWasIn = true;
+//                    conveyorDirection = Directions.STOP;
+//                }
+//            }
             moveConveyor(conveyorDirection);
 
             // Shooter
