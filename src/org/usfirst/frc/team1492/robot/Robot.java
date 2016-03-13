@@ -223,7 +223,7 @@ public class Robot extends IterativeRobot {
                 switch (terrainSelected) {
                 case autoShort:
                     setDrive(-.4);
-                    Timer.delay(1);
+                    Timer.delay(2);
                     setDrive(0);
                     autoMode = false;
                     break;
@@ -240,9 +240,20 @@ public class Robot extends IterativeRobot {
                     arm.set(0);
                     Timer.delay(.25);
 
-                    setDrive(-.4);
+                    setDrive(-0.4);
                     Timer.delay(7);
                     setDrive(0);
+                    Timer.delay(.25);
+                    /*
+                    setDrive(-.5, .5);
+                    Timer.delay(.5);
+                    setDrive(0);
+                    Timer.delay(.25);
+                    
+                    setDrive(-.75);
+                    Timer.delay(1);
+                    setDrive(0);
+                    */
                     shootAuto();
                     autoMode = false;
                     break;
@@ -641,7 +652,11 @@ public class Robot extends IterativeRobot {
             conveyor.set(0);
             break;
         case shootLow:
-            Timer.delay(.1);
+        	while (armForward.get()) {
+                arm.set(-0.5);
+            }
+            arm.set(0);
+            Timer.delay(.25);
             shooter.set(-1);
             conveyor.set(-1);
             intake.set(-1);
