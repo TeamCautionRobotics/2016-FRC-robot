@@ -77,7 +77,6 @@ public class Robot extends IterativeRobot {
     VictorSP intakeArm;
     VictorSP lift;
 
-    DigitalInput[] limitSwitches;
 
     // Sensors
     Gyro gyro;
