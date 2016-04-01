@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
@@ -77,6 +78,12 @@ public class Robot extends IterativeRobot {
     VictorSP intakeArm;
     VictorSP lift;
 
+    Relay ballInLight;
+
+    boolean ballWasIn   = false;
+    boolean ballLightOn = false;
+
+    Timer ballLightTimer;
 
     // Sensors
     Gyro gyro;
@@ -134,6 +141,10 @@ public class Robot extends IterativeRobot {
         intake = new VictorSP(5);
         intakeArm = new VictorSP(6);
         lift = new VictorSP(7);
+
+        ballInLight       = new Relay(0, Relay.Direction.kForward);
+
+        ballLightTimer    = new Timer();
 
         autoChooser = new SendableChooser();
         terrainChooser = new SendableChooser();
@@ -480,6 +491,28 @@ public class Robot extends IterativeRobot {
         
         double angle = gyro.getAngle();
         SmartDashboard.putNumber("Gyro", angle);
+
+        if (!ballLoaded.get()) {
+            if (!ballWasIn) {
+                ballWasIn = true;
+                ballInLight.set(Relay.Value.kOff);
+                ballLightOn = false;
+                ballLightTimer.reset();
+                ballLightTimer.start();
+            } else if (ballLightTimer.hasPeriodPassed(0.2)) {
+                if (ballLightOn) {
+                    ballInLight.set(Relay.Value.kOff);
+                    ballLightOn = false;
+                } else {
+                    ballInLight.set(Relay.Value.kForward);
+                    ballLightOn = true;
+                }
+            }
+        } else {
+            ballWasIn = false;
+            ballInLight.set(Relay.Value.kForward);
+            ballLightOn = true;
+        }
 
         updateDSLimitSW();
     }
