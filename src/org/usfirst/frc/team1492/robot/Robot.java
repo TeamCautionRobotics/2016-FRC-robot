@@ -77,6 +77,7 @@ public class Robot extends IterativeRobot {
     VictorSP intake;
     VictorSP intakeArm;
     VictorSP lift;
+    VictorSP hook;
 
     Relay ballInLight;
 
@@ -141,6 +142,7 @@ public class Robot extends IterativeRobot {
         intake = new VictorSP(5);
         intakeArm = new VictorSP(6);
         lift = new VictorSP(7);
+        hook = new VictorSP(8);
 
         ballInLight       = new Relay(0, Relay.Direction.kForward);
 
@@ -397,6 +399,8 @@ public class Robot extends IterativeRobot {
     	 * shooter fire = right trigger
     	 * arm = left joystick
     	 * all out = B
+    	 * hook up = Y
+    	 * hook down = A
     	 * 
     	 */
     	
@@ -457,6 +461,12 @@ public class Robot extends IterativeRobot {
         }
 
 
+        if (joysticks[1].getRawButton(Buttons.A)) {
+        	hook.set(25);
+        } else if(joysticks[1].getRawButton(Buttons.Y)) {
+        	hook.set(-25);
+    	}
+        
         // - forward
         // + backward
         // go - if back is pressed
