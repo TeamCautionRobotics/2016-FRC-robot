@@ -462,9 +462,9 @@ public class Robot extends IterativeRobot {
 
 
         if (joysticks[1].getRawButton(Buttons.A)) {
-        	hook.set(25);
+        	hook.set(.25);
         } else if(joysticks[1].getRawButton(Buttons.Y)) {
-        	hook.set(-25);
+        	hook.set(-.25);
     	}
         
         // - forward
