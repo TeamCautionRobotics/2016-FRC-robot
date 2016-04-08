@@ -478,11 +478,11 @@ public class Robot extends IterativeRobot {
         }
 
         double intakeArmJoystickPosition = deadband(joysticks[1].getRawAxis(Axises.RIGHT_Y));
-        if (!intakeArmDown.get()) {
-            intakeArm.set(Math.max(0, intakeArmJoystickPosition));
-        } else {
+//        if (!intakeArmDown.get()) {
+//            intakeArm.set(Math.max(0, intakeArmJoystickPosition));
+//        } else {
             intakeArm.set(intakeArmJoystickPosition);
-        }
+//        }
 
         
         if (joysticks[1].getRawButton(Buttons.Y)) {
