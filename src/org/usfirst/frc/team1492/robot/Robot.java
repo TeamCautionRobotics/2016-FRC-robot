@@ -1,6 +1,5 @@
 package org.usfirst.frc.team1492.robot;
 
-import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
@@ -9,7 +8,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -95,9 +93,6 @@ public class Robot extends IterativeRobot {
     Encoder shooterEncoder;
 
     boolean autoFailed = false;
-
-    // Sensors
-    Gyro gyro;
 
     DigitalInput armBack;
     DigitalInput ballLoaded;
@@ -189,9 +184,6 @@ public class Robot extends IterativeRobot {
 
         initalizeMotorSpeeds();
 
-        // Sensors
-        gyro = new AnalogGyro(1);
-
         ballLoaded = new DigitalInput(0);
         intakeArmDown = new DigitalInput(1);
         armBack = new DigitalInput(2);
@@ -210,8 +202,6 @@ public class Robot extends IterativeRobot {
                 }
             }
         }
-
-        resetSensors();
     }
 
 
@@ -525,9 +515,6 @@ public class Robot extends IterativeRobot {
         } else {
         	lift.set(0);
         }
-        
-        double angle = gyro.getAngle();
-        SmartDashboard.putNumber("Gyro", angle);
 
         double shooterSpeed = shooterEncoder.getRate();
         double shooterLightThreshold = 85000;
@@ -711,11 +698,6 @@ public class Robot extends IterativeRobot {
      */
     boolean getSpeedMapping() {
         return joysticks[0].getRawAxis(Axises.LEFT_TRIGGER) > 0.5;
-    }
-
-    // Reset sensors
-    void resetSensors() {
-        gyro.reset();
     }
 
 
