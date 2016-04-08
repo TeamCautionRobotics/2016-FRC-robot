@@ -94,6 +94,8 @@ public class Robot extends IterativeRobot {
 
     Encoder shooterEncoder;
 
+    boolean autoFailed = false;
+
     // Sensors
     Gyro gyro;
 
@@ -230,6 +232,7 @@ public class Robot extends IterativeRobot {
         shootSelected = (String) shootChooser.getSelected();
         System.out.println("Shoot selected: " + shootSelected);
         autoMode = true;
+        autoFailed = false;
     }
 
     /**
@@ -237,6 +240,7 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousPeriodic() {
         if (autoMode) {
+            Timer operationTimer = new Timer();
             switch (autoSelected) {
             case auto:
                 switch (terrainSelected) {
@@ -248,15 +252,27 @@ public class Robot extends IterativeRobot {
                     break;
                 case lowBar:
                     // Drive forward
-//                    while (intakeArmDown.get()) {
-//                        intakeArm.set(-1);
-//                    }
-                    intakeArm.set(0);
+                    autoFailed = lowerIntakeArm();
+                    if (autoFailed) {
+                        System.out.println("FAILED LOWBAR winch");
+                        autoMode = false;
+                        return;
+                    }
 
-                    while (armForward.get()) {
+                    operationTimer.reset();
+                    operationTimer.start();
+                    while (armForward.get() && !autoFailed) {
                         arm.set(-0.5);
+                        autoFailed = operationTimer.get() > 3;
                     }
                     arm.set(0);
+
+                    if (autoFailed) {
+                        System.out.println("FAILED LOWBAR arm");
+                        autoMode = false;
+                        return;
+                    }
+
                     Timer.delay(.25);
 
                     setDrive(-0.4);
@@ -301,6 +317,14 @@ public class Robot extends IterativeRobot {
                     autoMode = false;
                     break;
                 case moat:
+                    autoFailed = lowerIntakeArm();
+
+                    if (autoFailed) {
+                        System.out.println("FAILED LOWBAR winch");
+                        autoMode = false;
+                        return;
+                    }
+
                     // Drive forward
                     setDrive(-.4);
                     Timer.delay(7);
@@ -692,6 +716,21 @@ public class Robot extends IterativeRobot {
     // Reset sensors
     void resetSensors() {
         gyro.reset();
+    }
+
+
+    boolean lowerIntakeArm() {
+        boolean lowerFailed = false;
+        Timer intakeArmLowerTimer = new Timer();
+        intakeArmLowerTimer.start();
+
+        while (intakeArmDown.get() && !lowerFailed) {
+            intakeArm.set(1);
+            lowerFailed = intakeArmLowerTimer.get() > 7;
+        }
+
+        intakeArm.set(0);
+        return lowerFailed;
     }
 
     // Auto Shoot Choosers
