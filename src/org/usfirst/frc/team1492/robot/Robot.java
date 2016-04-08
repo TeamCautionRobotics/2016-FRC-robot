@@ -3,6 +3,7 @@ package org.usfirst.frc.team1492.robot;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Relay;
@@ -56,6 +57,8 @@ public class Robot extends IterativeRobot {
 
     final boolean cameraConnected = true;
 
+    final String shooterThresholdName = "Shooter ready threshold (pulses/second)";
+
     String autoSelected;
     String terrainSelected;
     String shootSelected;
@@ -88,6 +91,8 @@ public class Robot extends IterativeRobot {
 
     Timer ballLightTimer;
     Timer shooterLightTimer;
+
+    Encoder shooterEncoder;
 
     // Sensors
     Gyro gyro;
@@ -149,6 +154,9 @@ public class Robot extends IterativeRobot {
         flagLightsRelay = new Relay(0);
 
         ballLightTimer = new Timer();
+        shooterLightTimer = new Timer();
+
+        shooterEncoder = new Encoder(5, 6, true, Encoder.EncodingType.k4X);
 
         autoChooser = new SendableChooser();
         terrainChooser = new SendableChooser();
@@ -452,8 +460,9 @@ public class Robot extends IterativeRobot {
 
             moveConveyor(conveyorDirection);
 
+            double shooterSpeed = shooterEncoder.getRate();
             // Shooter
-            if (joysticks[1].getRawAxis(Axises.RIGHT_TRIGGER) > 0.5) {
+            if (joysticks[1].getRawAxis(Axises.RIGHT_TRIGGER) > 0.5 && shooterSpeed <= 85000) {
                 moveShooter(Directions.IN);
             } else {
                 moveShooter(Directions.STOP);
@@ -496,7 +505,12 @@ public class Robot extends IterativeRobot {
         double angle = gyro.getAngle();
         SmartDashboard.putNumber("Gyro", angle);
 
-        updateFlagLights(false, !ballLoaded.get());
+        double shooterSpeed = shooterEncoder.getRate();
+        double shooterLightThreshold = 85000;
+
+        SmartDashboard.putNumber("Shooter speed value", shooterSpeed);
+
+        updateFlagLights(shooterSpeed >= shooterLightThreshold, !ballLoaded.get());
 
         updateDSLimitSW();
     }
