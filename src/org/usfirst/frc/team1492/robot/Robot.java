@@ -78,12 +78,16 @@ public class Robot extends IterativeRobot {
     VictorSP intakeArm;
     VictorSP lift;
 
-    Relay ballInLight;
+    Relay flagLightsRelay;
 
     boolean ballWasIn   = false;
     boolean ballLightOn = false;
 
+    boolean shooterWasReady = false;
+    boolean shooterLightOn  = false;
+
     Timer ballLightTimer;
+    Timer shooterLightTimer;
 
     // Sensors
     Gyro gyro;
@@ -142,9 +146,9 @@ public class Robot extends IterativeRobot {
         intakeArm = new VictorSP(6);
         lift = new VictorSP(7);
 
-        ballInLight       = new Relay(0, Relay.Direction.kForward);
+        flagLightsRelay = new Relay(0);
 
-        ballLightTimer    = new Timer();
+        ballLightTimer = new Timer();
 
         autoChooser = new SendableChooser();
         terrainChooser = new SendableChooser();
@@ -492,27 +496,7 @@ public class Robot extends IterativeRobot {
         double angle = gyro.getAngle();
         SmartDashboard.putNumber("Gyro", angle);
 
-        if (!ballLoaded.get()) {
-            if (!ballWasIn) {
-                ballWasIn = true;
-                ballInLight.set(Relay.Value.kOff);
-                ballLightOn = false;
-                ballLightTimer.reset();
-                ballLightTimer.start();
-            } else if (ballLightTimer.hasPeriodPassed(0.2)) {
-                if (ballLightOn) {
-                    ballInLight.set(Relay.Value.kOff);
-                    ballLightOn = false;
-                } else {
-                    ballInLight.set(Relay.Value.kForward);
-                    ballLightOn = true;
-                }
-            }
-        } else {
-            ballWasIn = false;
-            ballInLight.set(Relay.Value.kForward);
-            ballLightOn = true;
-        }
+        updateFlagLights(false, !ballLoaded.get());
 
         updateDSLimitSW();
     }
@@ -548,6 +532,52 @@ public class Robot extends IterativeRobot {
         SmartDashboard.getNumber("Intake arm max speed",    1);
     }
 
+
+    void updateFlagLights(boolean shooterReady, boolean ballIn) {
+        boolean ballLight = ballLightOn;
+        boolean shooterLight = shooterLightOn;
+
+        if (ballIn) {
+            if (!ballWasIn) {
+                ballWasIn = true;
+                ballLight = false;
+                ballLightTimer.reset();
+                ballLightTimer.start();
+            } else if (ballLightTimer.hasPeriodPassed(0.2)) {
+                ballLight = !ballLight;
+            }
+        } else {
+            ballWasIn = false;
+            ballLight = true;
+        }
+
+        if (shooterReady) {
+            if (!shooterWasReady) {
+                shooterWasReady = true;
+                shooterLight = false;
+                shooterLightTimer.reset();
+                shooterLightTimer.start();
+            } else if (shooterLightTimer.hasPeriodPassed(0.2)) {
+                shooterLight = !shooterLight;
+            }
+        } else {
+            shooterWasReady = false;
+            shooterLight = true;
+        }
+
+        if (ballLight && shooterLight) {
+            flagLightsRelay.set(Relay.Value.kOn);
+        } else if (ballLight) {
+            flagLightsRelay.set(Relay.Value.kForward);
+        } else if (shooterLight) {
+            flagLightsRelay.set(Relay.Value.kReverse);
+        } else {
+            flagLightsRelay.set(Relay.Value.kOff);
+        }
+
+        ballLightOn = ballLight;
+        shooterLightOn = shooterLight;
+    }
 
     enum Directions {
         STOP, IN, OUT
