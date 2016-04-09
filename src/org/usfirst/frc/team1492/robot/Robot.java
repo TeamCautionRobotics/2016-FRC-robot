@@ -57,6 +57,8 @@ public class Robot extends IterativeRobot {
 
     final String shooterThresholdName = "Shooter ready threshold (pulses/second)";
 
+    int desiredShooterSpeed = 87000;
+    
     String autoSelected;
     String terrainSelected;
     String shootSelected;
@@ -91,6 +93,18 @@ public class Robot extends IterativeRobot {
     Timer shooterLightTimer;
 
     Encoder shooterEncoder;
+    
+    enum AutoState {
+    	INITAL,
+    	LOWERING_INTAKE_ARM,
+    	LOWERING_S_ARM,
+    	DRIVING,
+    	FINISHED
+    }
+    
+    AutoState autoState;
+    
+    Timer autoTimer;
 
     boolean autoFailed = false;
 
@@ -98,6 +112,7 @@ public class Robot extends IterativeRobot {
     DigitalInput ballLoaded;
     DigitalInput intakeArmDown;
     DigitalInput armForward;
+    DigitalInput autoManualSwitch;
 
     double BLOB_COUNT;
     double COG_BOX_SIZE;
@@ -188,6 +203,7 @@ public class Robot extends IterativeRobot {
         intakeArmDown = new DigitalInput(1);
         armBack = new DigitalInput(2);
         armForward = new DigitalInput(3);
+        autoManualSwitch = new DigitalInput(4);
 
         // Camera
         if (cameraConnected) {
@@ -215,192 +231,58 @@ public class Robot extends IterativeRobot {
      * SendableChooser make sure to add them to the chooser code above as well.
      */
     public void autonomousInit() {
-        autoSelected = (String) autoChooser.getSelected();
-        System.out.println("Auto selected: " + autoSelected);
-        terrainSelected = (String) terrainChooser.getSelected();
-        System.out.println("Terrain selected: " + terrainSelected);
-        shootSelected = (String) shootChooser.getSelected();
-        System.out.println("Shoot selected: " + shootSelected);
-        autoMode = true;
-        autoFailed = false;
+    	autoState = AutoState.INITAL;
+    	autoTimer = new Timer();
     }
 
     /**
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
-        if (autoMode) {
-            Timer operationTimer = new Timer();
-            switch (autoSelected) {
-            case auto:
-                switch (terrainSelected) {
-                case autoShort:
-                    setDrive(-.4);
-                    Timer.delay(2);
-                    setDrive(0);
-                    autoMode = false;
-                    break;
-                case lowBar:
-                    // Drive forward
-                    autoFailed = lowerIntakeArm();
-                    if (autoFailed) {
-                        System.out.println("FAILED LOWBAR winch");
-                        autoMode = false;
-                        return;
-                    }
-
-                    operationTimer.reset();
-                    operationTimer.start();
-                    while (armForward.get() && !autoFailed) {
-                        arm.set(-0.5);
-                        autoFailed = operationTimer.get() > 3;
-                    }
-                    arm.set(0);
-
-                    if (autoFailed) {
-                        System.out.println("FAILED LOWBAR arm");
-                        autoMode = false;
-                        return;
-                    }
-
-                    Timer.delay(.25);
-
-                    setDrive(-0.4);
-                    Timer.delay(7);
-                    setDrive(0);
-                    Timer.delay(.25);
-                    /*
-                    setDrive(-.5, .5);
-                    Timer.delay(.5);
-                    setDrive(0);
-                    Timer.delay(.25);
-                    
-                    setDrive(-.75);
-                    Timer.delay(1);
-                    setDrive(0);
-                    */
-                    shootAuto();
-                    autoMode = false;
-                    break;
-                case portcullis:
-                    // Drive forward
-                    setDrive(.5);
-                    arm.set(-.5);
-                    Timer.delay(.5);
-                    arm.set(0);
-                    Timer.delay(1.5);
-                    setDrive(0);
-                    // Open portcullis
-                    arm.set(.5);
-                    setDrive(.3);
-                    Timer.delay(.5);
-                    arm.set(0);
-                    Timer.delay(2);
-                    setDrive(0);
-                    shootAuto();
-                    autoMode = false;
-                    break;
-                case chevalDeFrise:
-                    // Drive forward
-                    setDrive(.5);
-                    shootAuto();
-                    autoMode = false;
-                    break;
-                case moat:
-                    autoFailed = lowerIntakeArm();
-
-                    if (autoFailed) {
-                        System.out.println("FAILED LOWBAR winch");
-                        autoMode = false;
-                        return;
-                    }
-
-                    // Drive forward
-                    setDrive(-.4);
-                    Timer.delay(7);
-                    setDrive(0);
-                    shootAuto();
-                    autoMode = false;
-                    break;
-                case ramparts:
-                    // Drive forward
-                    setDrive(.5);
-                    Timer.delay(1);
-                    // Accelerate one side to get over ramparts
-                    setDrive(.5, .75);
-                    Timer.delay(2);
-                    setDrive(0);
-                    shootAuto();
-                    autoMode = false;
-                    break;
-                case drawbridge:
-                    // Drive forward
-                    setDrive(.5);
-                    Timer.delay(1);
-                    setDrive(0);
-                    // Pull down drawbridge
-                    intakeArm.set(-.5);
-                    Timer.delay(.25);
-                    setDrive(-.25);
-                    Timer.delay(.5);
-                    intakeArm.set(0);
-                    // Drive through
-                    setDrive(.5);
-                    Timer.delay(2);
-                    setDrive(0);
-                    shootAuto();
-                    autoMode = false;
-                    break;
-                case sallyPort:
-                    // Drive forward
-                    setDrive(.5);
-                    Timer.delay(2);
-                    setDrive(0);
-                    // Open the sally port
-                    intakeArm.set(.5);
-                    Timer.delay(.25);
-                    setDrive(-.30, -.25);
-                    Timer.delay(.5);
-                    intakeArm.set(0);
-                    // Drive through
-                    setDrive(.30, .25);
-                    Timer.delay(.5);
-                    setDrive(.5);
-                    Timer.delay(1.5);
-                    setDrive(0);
-                    shootAuto();
-                    autoMode = false;
-                    break;
-                case roughTerrain:
-                    // Drive forward
-                    setDrive(.5);
-                    Timer.delay(3);
-                    setDrive(0);
-                    shootAuto();
-                    autoMode = false;
-                    break;
-                case rockWall:
-                    // Drive forward
-                    setDrive(.5);
-                    Timer.delay(3);
-                    setDrive(0);
-                    shootAuto();
-                    autoMode = false;
-                    break;
-                case none:
-                default:
-                    // No terrain
-                    shootAuto();
-                    autoMode = false;
-                    break;
-                }
-                break;
-            case noAuto:
-            default:
-                // No auto
-                autoMode = false;
-                break;
-            }
+        switch (autoState) {
+        	case INITAL:{
+        		intakeArm.set(1);
+        		autoState = AutoState.LOWERING_INTAKE_ARM;
+        		break;
+        	}
+    		case LOWERING_INTAKE_ARM:{
+    			if(!intakeArmDown.get()){
+            		intakeArm.set(0);
+            		if(!){
+            			autoState = AutoState.LOWERING_S_ARM;
+            			arm.set(-0.5);
+            		}else{
+            			autoState = AutoState.DRIVING;
+        				setDrive(-.4);
+        				autoTimer.reset();
+        				autoTimer.start();
+            		}
+    			}
+    			break;
+    		}
+    		case LOWERING_S_ARM:{
+    			if(!armForward.get()){
+    				arm.set(0);
+    				autoState = AutoState.DRIVING;
+    				setDrive(-.4);
+    				autoTimer.reset();
+    				autoTimer.start();
+    			}
+    			break;
+    		}
+			case DRIVING:{
+				if(autoTimer.get() >= 7){
+    				setDrive(0);
+    				autoState = AutoState.FINISHED;
+				}
+				break;
+			}
+			case FINISHED:{
+				//Lalala done
+				break;
+			}
+		default:
+			break;
         }
     }
 
@@ -476,7 +358,7 @@ public class Robot extends IterativeRobot {
 
             double shooterSpeed = shooterEncoder.getRate();
             // Shooter
-            if (joysticks[1].getRawAxis(Axises.RIGHT_TRIGGER) > 0.5 && shooterSpeed <= 85000) {
+            if (joysticks[1].getRawAxis(Axises.RIGHT_TRIGGER) > 0.5 && shooterSpeed <= desiredShooterSpeed) {
                 moveShooter(Directions.IN);
             } else {
                 moveShooter(Directions.STOP);
@@ -517,11 +399,10 @@ public class Robot extends IterativeRobot {
         }
 
         double shooterSpeed = shooterEncoder.getRate();
-        double shooterLightThreshold = 85000;
 
         SmartDashboard.putNumber("Shooter speed value", shooterSpeed);
 
-        updateFlagLights(shooterSpeed >= shooterLightThreshold, !ballLoaded.get());
+        updateFlagLights(shooterSpeed >= desiredShooterSpeed, !ballLoaded.get());
 
         updateDSLimitSW();
     }
