@@ -515,21 +515,6 @@ public class Robot extends IterativeRobot {
     }
 
 
-    boolean lowerIntakeArm() {
-        boolean lowerFailed = false;
-        Timer intakeArmLowerTimer = new Timer();
-        intakeArmLowerTimer.start();
-
-        while (intakeArmDown.get() && !lowerFailed) {
-            intakeArm.set(1);
-            lowerFailed = intakeArmLowerTimer.get() > 7;
-        }
-
-        intakeArm.set(0);
-        return lowerFailed;
-    }
-
-
     /**
      * Invert left side so the motor turns in the correct direction. The left
      * and right sides have to be inverted because the motors are mirrored
