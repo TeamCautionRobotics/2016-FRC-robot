@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -20,51 +19,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 public class Robot extends IterativeRobot {
-    // Auto
-    final String noAuto = "No Auto";
-    final String auto = "Auto";
-    
-    final String autoShort = "Short Auto";
-
-    // Low Bar
-    final String lowBar = "Low Bar";
-
-    // Category A Defenses
-    final String portcullis = "Portcullis";
-    final String chevalDeFrise = "Cheval de Frise";
-
-    // Category B Defenses
-    final String moat = "Moat";
-    final String ramparts = "Ramparts";
-
-    // Category C Defenses
-    final String drawbridge = "Drawbridge";
-    final String sallyPort = "Sally Port";
-
-    // Category D Defenses
-    final String roughTerrain = "Rough Terrain";
-    final String rockWall = "Rock Wall";
-
-    // No auto
-    final String none = "Nothing";
-
-    // Shoot or don't shoot
-    final String shootHigh = "Shoot High";
-    final String shootLow = "Shoot Low";
-    final String noShoot = "Do Not Shoot";
 
     final boolean cameraConnected = true;
 
     final String shooterThresholdName = "Shooter ready threshold (pulses/second)";
 
     int desiredShooterSpeed = 87000;
-    
-    String autoSelected;
-    String terrainSelected;
-    String shootSelected;
-    SendableChooser autoChooser;
-    SendableChooser terrainChooser;
-    SendableChooser shootChooser;
 
     CameraServer server;
 
@@ -105,6 +65,8 @@ public class Robot extends IterativeRobot {
     AutoState autoState;
     
     Timer autoTimer;
+    
+    final boolean autoLowerSArm = true;
 
     boolean autoFailed = false;
 
@@ -112,7 +74,6 @@ public class Robot extends IterativeRobot {
     DigitalInput ballLoaded;
     DigitalInput intakeArmDown;
     DigitalInput armForward;
-    DigitalInput autoManualSwitch;
 
     double BLOB_COUNT;
     double COG_BOX_SIZE;
@@ -170,40 +131,12 @@ public class Robot extends IterativeRobot {
 
         shooterEncoder = new Encoder(5, 6, true, Encoder.EncodingType.k4X);
 
-        autoChooser = new SendableChooser();
-        terrainChooser = new SendableChooser();
-        shootChooser = new SendableChooser();
-
-        autoChooser.addDefault("No Auto", noAuto);
-        autoChooser.addObject("Auto", auto);
-
-        terrainChooser.addObject(autoShort, "Short Auto");
-        terrainChooser.addObject("Low Bar", lowBar);
-        terrainChooser.addObject("Portcullis", portcullis);
-        terrainChooser.addObject("Cheval de Frise", chevalDeFrise);
-        terrainChooser.addObject("Moat", moat);
-        terrainChooser.addObject("Ramparts", ramparts);
-        terrainChooser.addObject("Drawbridge", drawbridge);
-        terrainChooser.addObject("Sally Port", sallyPort);
-        terrainChooser.addObject("Rough Terrain", roughTerrain);
-        terrainChooser.addObject("Rock Wall", rockWall);
-        terrainChooser.addDefault("None", none);
-
-        shootChooser.addDefault("Do Not Shoot", noShoot);
-        shootChooser.addObject("Shoot High", shootHigh);
-        shootChooser.addObject("Shoot Low", shootLow);
-
-        SmartDashboard.putData("Auto Chooser", autoChooser);
-        SmartDashboard.putData("Terrain Chooser", terrainChooser);
-        SmartDashboard.putData("Shoot Chooser", shootChooser);
-
         initalizeMotorSpeeds();
 
         ballLoaded = new DigitalInput(0);
         intakeArmDown = new DigitalInput(1);
         armBack = new DigitalInput(2);
         armForward = new DigitalInput(3);
-        autoManualSwitch = new DigitalInput(4);
 
         // Camera
         if (cameraConnected) {
@@ -248,7 +181,7 @@ public class Robot extends IterativeRobot {
     		case LOWERING_INTAKE_ARM:{
     			if(!intakeArmDown.get()){
             		intakeArm.set(0);
-            		if(!){
+            		if(autoLowerSArm){
             			autoState = AutoState.LOWERING_S_ARM;
             			arm.set(-0.5);
             		}else{
@@ -473,9 +406,9 @@ public class Robot extends IterativeRobot {
 
         if (ballLight && shooterLight) {
             flagLightsRelay.set(Relay.Value.kOn);
-        } else if (ballLight) {
-            flagLightsRelay.set(Relay.Value.kForward);
         } else if (shooterLight) {
+            flagLightsRelay.set(Relay.Value.kForward);
+        } else if (ballLight) {
             flagLightsRelay.set(Relay.Value.kReverse);
         } else {
             flagLightsRelay.set(Relay.Value.kOff);
@@ -594,38 +527,6 @@ public class Robot extends IterativeRobot {
 
         intakeArm.set(0);
         return lowerFailed;
-    }
-
-    // Auto Shoot Choosers
-    void shootAuto () {
-        switch(shootSelected) {
-        case shootHigh:
-            Timer.delay(.1);
-            shooter.set(.9);
-            conveyor.set(.5);
-            Timer.delay(2);
-            shooter.set(0);
-            conveyor.set(0);
-            break;
-        case shootLow:
-        	while (armForward.get()) {
-                arm.set(-0.5);
-            }
-            arm.set(0);
-            Timer.delay(.25);
-            shooter.set(-1);
-            conveyor.set(-1);
-            intake.set(-1);
-            Timer.delay(2);
-            shooter.set(0);
-            conveyor.set(0);
-            intake.set(0);
-            break;
-        case noShoot:
-        default:
-            // No shoot
-            break;
-        }
     }
 
 
