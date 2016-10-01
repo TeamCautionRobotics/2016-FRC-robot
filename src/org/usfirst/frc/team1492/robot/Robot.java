@@ -36,10 +36,10 @@ public class Robot extends IterativeRobot {
     VictorSP leftDrive;
     VictorSP conveyor;
     VictorSP shooter;
-    VictorSP arm;
-    VictorSP intake;
+    VictorSP intake; //Old Arm
+    //Old VictorSP intake;
     VictorSP intakeArm;
-    VictorSP lift;
+    //Old VictorSP lift;
 
     Relay flagLightsRelay;
 
@@ -56,8 +56,6 @@ public class Robot extends IterativeRobot {
     
     enum AutoState {
     	INITAL,
-    	LOWERING_INTAKE_ARM,
-    	LOWERING_S_ARM,
     	DRIVING,
     	FINISHED
     }
@@ -66,7 +64,7 @@ public class Robot extends IterativeRobot {
     
     Timer autoTimer;
     
-    final boolean autoLowerSArm = true;
+    //final boolean autoLowerSArm = true;
 
     boolean autoFailed = false;
 
@@ -119,10 +117,10 @@ public class Robot extends IterativeRobot {
         leftDrive = new VictorSP(1);
         conveyor = new VictorSP(2);
         shooter = new VictorSP(3);
-        arm = new VictorSP(4);
-        intake = new VictorSP(5);
+        intake = new VictorSP(4);
+        //Old intake = new VictorSP(5);
         intakeArm = new VictorSP(6);
-        lift = new VictorSP(7);
+        //Old lift = new VictorSP(7);
 
         flagLightsRelay = new Relay(0);
 
@@ -175,15 +173,16 @@ public class Robot extends IterativeRobot {
         switch (autoState) {
         	case INITAL:{
         		intakeArm.set(1);
-        		autoState = AutoState.LOWERING_INTAKE_ARM;
+        		//autoState = AutoState.LOWERING_INTAKE_ARM;
+        		autoState = AutoState.DRIVING;
         		break;
         	}
-    		case LOWERING_INTAKE_ARM:{
+    		/*case LOWERING_INTAKE_ARM:{
     			if(!intakeArmDown.get()){
             		intakeArm.set(0);
             		if(autoLowerSArm){
             			autoState = AutoState.LOWERING_S_ARM;
-            			arm.set(-0.5);
+            			//arm.set(-0.5);
             		}else{
             			autoState = AutoState.DRIVING;
         				setDrive(-.4);
@@ -195,14 +194,14 @@ public class Robot extends IterativeRobot {
     		}
     		case LOWERING_S_ARM:{
     			if(!armForward.get()){
-    				arm.set(0);
+    				//arm.set(0);
     				autoState = AutoState.DRIVING;
     				setDrive(-.4);
     				autoTimer.reset();
     				autoTimer.start();
     			}
     			break;
-    		}
+    		}*/
 			case DRIVING:{
 				if(autoTimer.get() >= 7){
     				setDrive(0);
@@ -304,16 +303,16 @@ public class Robot extends IterativeRobot {
         // go - if back is pressed
         // go + if forward is pressed
 
-        double armJoysickPosition = deadband(joysticks[1].getRawAxis(Axises.LEFT_Y));
-        armJoysickPosition *= SmartDashboard.getNumber("Defense arm max speed", 1);
+        //double armJoysickPosition = deadband(joysticks[1].getRawAxis(Axises.LEFT_Y));
+        //armJoysickPosition *= SmartDashboard.getNumber("Defense arm max speed", 1);
 
-        if (!armBack.get()) {
-            arm.set(Math.min(0, armJoysickPosition));
-        } else if (!armForward.get()) {
-            arm.set(Math.max(0, armJoysickPosition));
-        } else {
-            arm.set(armJoysickPosition);
-        }
+        //if (!armBack.get()) {
+            //arm.set(Math.min(0, armJoysickPosition));
+        //} else if (!armForward.get()) {
+            //arm.set(Math.max(0, armJoysickPosition));
+        //} else {
+            //arm.set(armJoysickPosition);
+        //}
 
         double intakeArmJoystickPosition = deadband(joysticks[1].getRawAxis(Axises.RIGHT_Y));
 //        if (!intakeArmDown.get()) {
@@ -323,13 +322,13 @@ public class Robot extends IterativeRobot {
 //        }
 
         
-        if (joysticks[1].getRawButton(Buttons.Y)) {
-           lift.set(-1);
-        } else if (joysticks[1].getRawButton(Buttons.A)) {
-        	lift.set(1);
-        } else {
-        	lift.set(0);
-        }
+        //if (joysticks[1].getRawButton(Buttons.Y)) {
+           //lift.set(-1);
+        //} else if (joysticks[1].getRawButton(Buttons.A)) {
+        	//lift.set(1);
+        //} else {
+        	//lift.set(0);
+        //}
 
         double shooterSpeed = shooterEncoder.getRate();
 
