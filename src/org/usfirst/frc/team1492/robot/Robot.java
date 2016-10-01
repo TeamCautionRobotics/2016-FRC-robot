@@ -39,7 +39,7 @@ public class Robot extends IterativeRobot {
     VictorSP intake; //Old Arm
     //Old VictorSP intake;
     VictorSP intakeArm;
-    //Old VictorSP lift;
+    VictorSP cameraLight;
 
     Relay flagLightsRelay;
 
@@ -48,6 +48,8 @@ public class Robot extends IterativeRobot {
 
     boolean shooterWasReady = false;
     boolean shooterLightOn  = false;
+    
+    boolean cameraLightOn = false;
 
     Timer ballLightTimer;
     Timer shooterLightTimer;
@@ -120,7 +122,7 @@ public class Robot extends IterativeRobot {
         intake = new VictorSP(4);
         //Old intake = new VictorSP(5);
         intakeArm = new VictorSP(6);
-        //Old lift = new VictorSP(7);
+        cameraLight = new VictorSP(7);
 
         flagLightsRelay = new Relay(0);
 
@@ -258,6 +260,13 @@ public class Robot extends IterativeRobot {
         
         setDrive(leftSpeed, rightSpeed);
 
+        if (joysticks[0].getRawButton(Buttons.A)) {
+            cameraLight.set(1);
+            System.out.println("Light on");
+        } else {
+            cameraLight.set(0);
+            System.out.println("Light off");
+        }
 
         // Run full eject of boulder. Intake, conveyor, and shooter all reverse
         // This overrides all other boulder transport commands
