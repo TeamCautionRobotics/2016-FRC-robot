@@ -260,6 +260,7 @@ public class Robot extends IterativeRobot {
         
         setDrive(leftSpeed, rightSpeed);
 
+        // TODO: Change to toggle for camera light
         if (joysticks[0].getRawButton(Buttons.A)) {
             cameraLight.set(1);
             System.out.println("Light on");
