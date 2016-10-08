@@ -39,7 +39,7 @@ public class Robot extends IterativeRobot {
     VictorSP intake; //Old Arm
     //Old VictorSP intake;
     VictorSP intakeArm;
-    //Old VictorSP lift;
+    VictorSP cameraLight;
 
     Relay flagLightsRelay;
 
@@ -48,9 +48,11 @@ public class Robot extends IterativeRobot {
 
     boolean shooterWasReady = false;
     boolean shooterLightOn  = false;
+    
+    boolean cameraLightOn = false;
+    boolean cameraLightPressed = false;
 
     Timer ballLightTimer;
-    Timer shooterLightTimer;
 
     Encoder shooterEncoder;
     
@@ -125,7 +127,6 @@ public class Robot extends IterativeRobot {
         flagLightsRelay = new Relay(0);
 
         ballLightTimer = new Timer();
-        shooterLightTimer = new Timer();
 
         shooterEncoder = new Encoder(5, 6, true, Encoder.EncodingType.k4X);
 
@@ -258,6 +259,12 @@ public class Robot extends IterativeRobot {
         
         setDrive(leftSpeed, rightSpeed);
 
+        // The camera light button is not the same as what it was
+        // (it is pressed or unpressed)
+        if (joysticks[0].getRawButton(Buttons.A) != cameraLightPressed) {
+            cameraLightOn = !cameraLightOn;
+            cameraLightPressed = joysticks[0].getRawButton(Buttons.A);
+        }
 
         // Run full eject of boulder. Intake, conveyor, and shooter all reverse
         // This overrides all other boulder transport commands
@@ -328,7 +335,7 @@ public class Robot extends IterativeRobot {
 
         SmartDashboard.putNumber("Shooter speed value", shooterSpeed);
 
-        updateFlagLights(shooterSpeed >= desiredShooterSpeed, !ballLoaded.get());
+        updateFlagLights(cameraLightOn, !ballLoaded.get());
 
         updateDSLimitSW();
     }
@@ -365,9 +372,8 @@ public class Robot extends IterativeRobot {
     }
 
 
-    void updateFlagLights(boolean shooterReady, boolean ballIn) {
+    void updateFlagLights(boolean cameraLight, boolean ballIn) {
         boolean ballLight = ballLightOn;
-        boolean shooterLight = shooterLightOn;
 
         if (ballIn) {
             if (!ballWasIn) {
@@ -383,23 +389,9 @@ public class Robot extends IterativeRobot {
             ballLight = true;
         }
 
-        if (shooterReady) {
-            if (!shooterWasReady) {
-                shooterWasReady = true;
-                shooterLight = false;
-                shooterLightTimer.reset();
-                shooterLightTimer.start();
-            } else if (shooterLightTimer.hasPeriodPassed(0.2)) {
-                shooterLight = !shooterLight;
-            }
-        } else {
-            shooterWasReady = false;
-            shooterLight = true;
-        }
-
-        if (ballLight && shooterLight) {
+        if (ballLight && cameraLight) {
             flagLightsRelay.set(Relay.Value.kOn);
-        } else if (shooterLight) {
+        } else if (cameraLight) {
             flagLightsRelay.set(Relay.Value.kForward);
         } else if (ballLight) {
             flagLightsRelay.set(Relay.Value.kReverse);
@@ -408,7 +400,6 @@ public class Robot extends IterativeRobot {
         }
 
         ballLightOn = ballLight;
-        shooterLightOn = shooterLight;
     }
 
     enum Directions {
