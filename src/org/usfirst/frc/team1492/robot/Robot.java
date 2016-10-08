@@ -273,8 +273,9 @@ public class Robot extends IterativeRobot {
         // This overrides all other boulder transport commands
         if (joysticks[0].getRawAxis(Axises.LEFT_TRIGGER) > 0.5 || joysticks[1].getRawButton(Buttons.B)) {
             moveBoulder(Directions.OUT);
-            moveIntake(Directions.OUT);
         } else {
+            double intakeJoystickPosition = deadband(joysticks[1].getRawAxis(Axises.RIGHT_Y)/-2);
+            intake.set(intakeJoystickPosition);
             // Intake arm up
             // Only one of the bumpers should be pressed. If both are pressed then the motor will stop
 
@@ -299,8 +300,8 @@ public class Robot extends IterativeRobot {
             }
         }
 
-        double intakeRoller = joysticks[1].getRawAxis(Axises.LEFT_Y);
-    	intakeArm.set(intakeRoller);
+        double intakeArmSpeed = joysticks[1].getRawAxis(Axises.LEFT_Y);
+    	intakeArm.set(intakeArmSpeed);
 
         // - forward
         // + backward
@@ -318,12 +319,6 @@ public class Robot extends IterativeRobot {
             //arm.set(armJoysickPosition);
         //}
 
-        double intakeJoystickPosition = deadband(joysticks[1].getRawAxis(Axises.RIGHT_Y)/-2);
-//        if (!intakeArmDown.get()) {
-//            intakeArm.set(Math.max(0, intakeArmJoystickPosition));
-//        } else {
-            intake.set(intakeJoystickPosition);
-//        }
 
         
         //if (joysticks[1].getRawButton(Buttons.Y)) {
