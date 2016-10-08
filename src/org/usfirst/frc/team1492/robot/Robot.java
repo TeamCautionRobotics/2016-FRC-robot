@@ -53,7 +53,6 @@ public class Robot extends IterativeRobot {
     boolean cameraLightPressed = false;
 
     Timer ballLightTimer;
-    Timer shooterLightTimer;
 
     Encoder shooterEncoder;
     
@@ -123,12 +122,10 @@ public class Robot extends IterativeRobot {
         intake = new VictorSP(4);
         //Old intake = new VictorSP(5);
         intakeArm = new VictorSP(6);
-        cameraLight = new VictorSP(7);
 
         flagLightsRelay = new Relay(0);
 
         ballLightTimer = new Timer();
-        shooterLightTimer = new Timer();
 
         shooterEncoder = new Encoder(5, 6, true, Encoder.EncodingType.k4X);
 
