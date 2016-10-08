@@ -261,9 +261,12 @@ public class Robot extends IterativeRobot {
 
         // The camera light button is not the same as what it was
         // (it is pressed or unpressed)
-        if (joysticks[0].getRawButton(Buttons.A) != cameraLightPressed) {
-            cameraLightOn = !cameraLightOn;
-            cameraLightPressed = joysticks[0].getRawButton(Buttons.A);
+        boolean cameraLightButton = joysticks[0].getRawButton(Buttons.A);
+        if (cameraLightButton != cameraLightPressed) {
+            if (cameraLightButton) {
+                cameraLightOn = !cameraLightOn;
+            }
+            cameraLightPressed = cameraLightButton;
         }
 
         // Run full eject of boulder. Intake, conveyor, and shooter all reverse
