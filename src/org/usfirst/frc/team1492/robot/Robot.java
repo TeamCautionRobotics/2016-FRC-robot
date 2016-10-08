@@ -413,7 +413,7 @@ public class Robot extends IterativeRobot {
             intake.set(SmartDashboard.getNumber("Intake forward speed", 1));
             break;
         case OUT:
-            intake.set(-SmartDashboard.getNumber("Intake backward speed", 1));
+            intake.set(-SmartDashboard.getNumber("Intake backward speed", -1));
             break;
         }
     }
