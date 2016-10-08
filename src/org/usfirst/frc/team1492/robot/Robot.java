@@ -117,9 +117,9 @@ public class Robot extends IterativeRobot {
         leftDrive = new VictorSP(1);
         conveyor = new VictorSP(2);
         shooter = new VictorSP(3);
-        intake = new VictorSP(4);
+        intake = new VictorSP(6);
         //Old intake = new VictorSP(5);
-        intakeArm = new VictorSP(6);
+        intakeArm = new VictorSP(4);
         //Old lift = new VictorSP(7);
 
         flagLightsRelay = new Relay(0);
@@ -251,10 +251,10 @@ public class Robot extends IterativeRobot {
 
         SmartDashboard.putBoolean("speed mapping", getSpeedMapping());
 
-        if (getSpeedMapping()) {
-            leftSpeed /= 2;
-            rightSpeed /= 2;
-        }
+//        if (getSpeedMapping()) {
+//            leftSpeed /= 2;
+//            rightSpeed /= 2;
+//        }
         
         setDrive(leftSpeed, rightSpeed);
 
@@ -263,18 +263,10 @@ public class Robot extends IterativeRobot {
         // This overrides all other boulder transport commands
         if (joysticks[0].getRawAxis(Axises.LEFT_TRIGGER) > 0.5 || joysticks[1].getRawButton(Buttons.B)) {
             moveBoulder(Directions.OUT);
+            moveIntake(Directions.OUT);
         } else {
-            // Intake
+            // Intake arm up
             // Only one of the bumpers should be pressed. If both are pressed then the motor will stop
-            if (joysticks[0].getRawButton(Buttons.LEFT_BUMPER) ^ joysticks[0].getRawButton(Buttons.RIGHT_BUMPER)) {
-                if (joysticks[0].getRawButton(Buttons.LEFT_BUMPER)) {
-                    moveIntake(Directions.OUT);
-                } else if (joysticks[0].getRawButton(Buttons.RIGHT_BUMPER)) {
-                    moveIntake(Directions.IN);
-                }
-            } else {
-                moveIntake(Directions.STOP);
-            }
 
             // Conveyor - left bumper out; left trigger in
             Directions conveyorDirection = Directions.STOP;
@@ -297,6 +289,8 @@ public class Robot extends IterativeRobot {
             }
         }
 
+        double intakeRoller = joysticks[1].getRawAxis(Axises.LEFT_Y);
+    	intakeArm.set(intakeRoller);
 
         // - forward
         // + backward
@@ -314,11 +308,11 @@ public class Robot extends IterativeRobot {
             //arm.set(armJoysickPosition);
         //}
 
-        double intakeArmJoystickPosition = deadband(joysticks[1].getRawAxis(Axises.RIGHT_Y));
+        double intakeJoystickPosition = deadband(joysticks[1].getRawAxis(Axises.RIGHT_Y)/-2);
 //        if (!intakeArmDown.get()) {
 //            intakeArm.set(Math.max(0, intakeArmJoystickPosition));
 //        } else {
-            intakeArm.set(intakeArmJoystickPosition);
+            intake.set(intakeJoystickPosition);
 //        }
 
         
