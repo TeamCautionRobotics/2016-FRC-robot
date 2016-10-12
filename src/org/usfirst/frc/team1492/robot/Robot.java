@@ -199,9 +199,11 @@ public class Robot extends IterativeRobot {
     public void autonomousPeriodic() {
         switch (autoState) {
         	case INITAL:{
-        		intakeArm.set(1);
         		//autoState = AutoState.LOWERING_INTAKE_ARM;
         		autoState = AutoState.DRIVING;
+        		setDrive(0.4);
+        		autoTimer.reset();
+                autoTimer.start();
         		break;
         	}
     		/*case LOWERING_INTAKE_ARM:{
