@@ -25,10 +25,6 @@ public class Robot extends IterativeRobot {
 
     final boolean cameraConnected = true;
 
-    final String shooterThresholdName = "Shooter ready threshold (pulses/second)";
-
-    int desiredShooterSpeed = 87000;
-
     CameraServer server;
 
     NetworkTable axisCam;
@@ -39,8 +35,7 @@ public class Robot extends IterativeRobot {
     VictorSP leftDrive;
     VictorSP conveyor;
     VictorSP shooter;
-    VictorSP intake; //Old Arm
-    //Old VictorSP intake;
+    VictorSP intake;
     VictorSP intakeArm;
     VictorSP cameraLight;
 
@@ -68,8 +63,6 @@ public class Robot extends IterativeRobot {
     AutoState autoState;
     
     Timer autoTimer;
-    
-    //final boolean autoLowerSArm = true;
 
     boolean autoFailed = false;
 
@@ -111,13 +104,6 @@ public class Robot extends IterativeRobot {
      * used for any initialization code.
      */
     public void robotInit() {
-        axisCam = NetworkTable.getTable("SmartDashboard");
-
-        BLOB_COUNT = axisCam.getNumber("BLOB_COUNT", 0.0);
-        COG_BOX_SIZE = axisCam.getNumber("COG_BOX_SIZE", 0.0);
-        COG_X = axisCam.getNumber("COG_X", 0.0);
-
-
         joysticks = new Joystick[2];
         joysticks[0] = new Joystick(0);
         joysticks[1] = new Joystick(1);
@@ -126,10 +112,8 @@ public class Robot extends IterativeRobot {
         leftDrive = new VictorSP(1);
         conveyor = new VictorSP(2);
         shooter = new VictorSP(3);
-        intake = new VictorSP(6);
-        //Old intake = new VictorSP(5);
         intakeArm = new VictorSP(4);
-        //Old lift = new VictorSP(7);
+        intake = new VictorSP(6);
 
         flagLightsRelay = new Relay(0);
 
@@ -199,38 +183,12 @@ public class Robot extends IterativeRobot {
     public void autonomousPeriodic() {
         switch (autoState) {
         	case INITAL:{
-        		//autoState = AutoState.LOWERING_INTAKE_ARM;
         		autoState = AutoState.DRIVING;
         		setDrive(0.4);
         		autoTimer.reset();
                 autoTimer.start();
         		break;
         	}
-    		/*case LOWERING_INTAKE_ARM:{
-    			if(!intakeArmDown.get()){
-            		intakeArm.set(0);
-            		if(autoLowerSArm){
-            			autoState = AutoState.LOWERING_S_ARM;
-            			//arm.set(-0.5);
-            		}else{
-            			autoState = AutoState.DRIVING;
-        				setDrive(-.4);
-        				autoTimer.reset();
-        				autoTimer.start();
-            		}
-    			}
-    			break;
-    		}
-    		case LOWERING_S_ARM:{
-    			if(!armForward.get()){
-    				//arm.set(0);
-    				autoState = AutoState.DRIVING;
-    				setDrive(-.4);
-    				autoTimer.reset();
-    				autoTimer.start();
-    			}
-    			break;
-    		}*/
 			case DRIVING:{
 				if(autoTimer.get() >= 7){
     				setDrive(0);
@@ -239,7 +197,7 @@ public class Robot extends IterativeRobot {
 				break;
 			}
 			case FINISHED:{
-				//Lalala done
+				// Lalala done
 				break;
 			}
 		default:
@@ -252,7 +210,6 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-    	
     	/* Main
     	 * Drive = Joysticks
     	 * all out = left trigger
@@ -270,24 +227,15 @@ public class Robot extends IterativeRobot {
     	 */
         updateShooterPIDGains();
         updateShooterSpeedReport();
-//        runShooter(true);
 
         double leftSpeed = -deadband(getMotor(Side.LEFT));
         double rightSpeed = -deadband(getMotor(Side.RIGHT));
-        double blobVal = axisCam.getNumber("BLOB_COUNT", 0.0);
-
-        SmartDashboard.putNumber("Cam Value Blob", blobVal);
 
         SmartDashboard.putNumber("left joy db", leftSpeed);
         SmartDashboard.putNumber("right joy db", rightSpeed);
 
         SmartDashboard.putBoolean("speed mapping", getSpeedMapping());
 
-//        if (getSpeedMapping()) {
-//            leftSpeed /= 2;
-//            rightSpeed /= 2;
-//        }
-        
         setDrive(leftSpeed, rightSpeed);
 
         // The camera light button is not the same as what it was
@@ -307,8 +255,6 @@ public class Robot extends IterativeRobot {
         } else {
             double intakeJoystickPosition = deadband(joysticks[1].getRawAxis(Axises.RIGHT_Y)/-2);
             intake.set(intakeJoystickPosition);
-            // Intake arm up
-            // Only one of the bumpers should be pressed. If both are pressed then the motor will stop
 
             // Conveyor - left bumper out; left trigger in
             Directions conveyorDirection = Directions.STOP;
@@ -328,32 +274,6 @@ public class Robot extends IterativeRobot {
 
         double intakeArmSpeed = joysticks[1].getRawAxis(Axises.LEFT_Y);
     	intakeArm.set(intakeArmSpeed);
-
-        // - forward
-        // + backward
-        // go - if back is pressed
-        // go + if forward is pressed
-
-        //double armJoysickPosition = deadband(joysticks[1].getRawAxis(Axises.LEFT_Y));
-        //armJoysickPosition *= SmartDashboard.getNumber("Defense arm max speed", 1);
-
-        //if (!armBack.get()) {
-            //arm.set(Math.min(0, armJoysickPosition));
-        //} else if (!armForward.get()) {
-            //arm.set(Math.max(0, armJoysickPosition));
-        //} else {
-            //arm.set(armJoysickPosition);
-        //}
-
-
-        
-        //if (joysticks[1].getRawButton(Buttons.Y)) {
-           //lift.set(-1);
-        //} else if (joysticks[1].getRawButton(Buttons.A)) {
-        	//lift.set(1);
-        //} else {
-        	//lift.set(0);
-        //}
 
         double shooterSpeed = shooterEncoder.getRate();
 
