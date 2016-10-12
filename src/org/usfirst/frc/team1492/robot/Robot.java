@@ -373,8 +373,7 @@ public class Robot extends IterativeRobot {
     
     void runShooter(boolean on) {
         if (on) {
-            // TODO: Set to correct default
-            double shootSpeed = shooterPrefs.getDouble("shootspeed", 80);
+            double shootSpeed = shooterPrefs.getDouble("shootspeed", 93);
             shooterController.setSetpoint(shootSpeed);
         } else {
             shooterController.setSetpoint(0);
