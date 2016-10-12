@@ -270,8 +270,8 @@ public class Robot extends IterativeRobot {
         updateShooterSpeedReport();
 //        runShooter(true);
 
-        double leftSpeed = deadband(getMotor(Side.LEFT));
-        double rightSpeed = deadband(getMotor(Side.RIGHT));
+        double leftSpeed = -deadband(getMotor(Side.LEFT));
+        double rightSpeed = -deadband(getMotor(Side.RIGHT));
         double blobVal = axisCam.getNumber("BLOB_COUNT", 0.0);
 
         SmartDashboard.putNumber("Cam Value Blob", blobVal);
@@ -540,8 +540,8 @@ public class Robot extends IterativeRobot {
     void setDrive(double left, double right) {
         SmartDashboard.putNumber("right motor", right);
         SmartDashboard.putNumber("left motor", left);
-        leftDrive.set(-left);
-        rightDrive.set(right);
+        leftDrive.set(left);
+        rightDrive.set(-right);
     }
 
     void setDrive(double speed) {
