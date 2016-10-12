@@ -142,10 +142,10 @@ public class Robot extends IterativeRobot {
 
         shooterPrefs = Preferences.getInstance();
 
-        shooterPrefs.getDouble("P", 0.0005);    
-        shooterPrefs.getDouble("I", 0.005);     
-        shooterPrefs.getDouble("D", 0);         
-        shooterPrefs.getDouble("F", 0.001);         
+        shooterPrefs.getDouble("P", 0.0005);
+        shooterPrefs.getDouble("I", 0.005);
+        shooterPrefs.getDouble("D", 0);
+        shooterPrefs.getDouble("F", 0.001);
         shooterPrefs.getDouble("setpoint", 80);
         shooterPrefs.putDouble("speed", 0);
 
@@ -213,7 +213,7 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-    	/* 
+    	/*
     	 * Main
     	 * Drive = both joysticks Y
     	 * all out = left trigger
