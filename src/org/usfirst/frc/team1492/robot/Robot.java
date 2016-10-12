@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
-import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -27,8 +26,6 @@ public class Robot extends IterativeRobot {
 
     CameraServer server;
 
-    NetworkTable axisCam;
-
     Joystick[] joysticks;
 
     VictorSP rightDrive;
@@ -39,18 +36,10 @@ public class Robot extends IterativeRobot {
     VictorSP intakeArm;
     VictorSP cameraLight;
 
-    Relay flagLightsRelay;
+    Relay statusLightsRelay;
 
-    boolean ballWasIn   = false;
-    boolean ballLightOn = false;
-
-    boolean shooterWasReady = false;
-    boolean shooterLightOn  = false;
-    
     boolean cameraLightOn = false;
     boolean cameraLightPressed = false;
-
-    Timer ballLightTimer;
 
     Encoder shooterEncoder;
     
@@ -64,8 +53,6 @@ public class Robot extends IterativeRobot {
     
     Timer autoTimer;
 
-    boolean autoFailed = false;
-
     DigitalInput armBack;
     DigitalInput ballLoaded;
     DigitalInput intakeArmDown;
@@ -74,10 +61,6 @@ public class Robot extends IterativeRobot {
     PIDController shooterController;
 
     Preferences shooterPrefs;
-
-    double BLOB_COUNT;
-    double COG_BOX_SIZE;
-    double COG_X;
 
     boolean autoMode = true;
 
@@ -118,13 +101,7 @@ public class Robot extends IterativeRobot {
         intakeArm = new VictorSP(4);
         intake = new VictorSP(6);
 
-        flagLightsRelay = new Relay(0);
-
-        ballLightTimer = new Timer();
-
-        shooterEncoder = new Encoder(5, 6, true, Encoder.EncodingType.k4X);
-        shooterEncoder.setPIDSourceType(PIDSourceType.kRate);
-        shooterEncoder.setDistancePerPulse(1.0/1024);
+        statusLightsRelay = new Relay(0);
 
         initalizeMotorSpeeds();
 
@@ -133,15 +110,17 @@ public class Robot extends IterativeRobot {
         armBack = new DigitalInput(2);
         armForward = new DigitalInput(3);
 
+        shooterEncoder = new Encoder(5, 6, true, Encoder.EncodingType.k4X);
+        shooterEncoder.setPIDSourceType(PIDSourceType.kRate);
+        shooterEncoder.setDistancePerPulse(1.0/1024);
+
         shooterController = new PIDController(1, 1, 1, 1, shooterEncoder, shooter);
         shooterController.setOutputRange(0, 1);
         shooterController.setInputRange(-115, 115);
         shooterController.setSetpoint(0);
         shooterController.enable();
 
-
         shooterPrefs = Preferences.getInstance();
-
         shooterPrefs.getDouble("P", 0.0005);
         shooterPrefs.getDouble("I", 0.005);
         shooterPrefs.getDouble("D", 0);
@@ -165,16 +144,6 @@ public class Robot extends IterativeRobot {
         }
     }
 
-
-    /**
-     * This autonomous (along with the chooser code above) shows how to select
-     * between different autonomous modes using the dashboard. The sendable
-     * chooser code works with the Java SmartDashboard.
-     *
-     * You can add additional auto modes by adding additional comparisons to the
-     * switch structure below with additional strings. If using the
-     * SendableChooser make sure to add them to the chooser code above as well.
-     */
     public void autonomousInit() {
     	autoState = AutoState.INITAL;
     	autoTimer = new Timer();
@@ -185,21 +154,21 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousPeriodic() {
         switch (autoState) {
-        	case INITAL:{
+        	case INITAL: {
         		autoState = AutoState.DRIVING;
         		setDrive(0.4);
         		autoTimer.reset();
                 autoTimer.start();
         		break;
         	}
-			case DRIVING:{
+			case DRIVING: {
 				if(autoTimer.get() >= 7){
     				setDrive(0);
     				autoState = AutoState.FINISHED;
 				}
 				break;
 			}
-			case FINISHED:{
+			case FINISHED: {
 				// Lalala done
 				break;
 			}
@@ -208,19 +177,17 @@ public class Robot extends IterativeRobot {
         }
     }
 
-
     /**
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
     	/*
-    	 * Main
+    	 * Main:
     	 * Drive = both joysticks Y
     	 * all out = left trigger
     	 * Turn on targeting light = A
     	 *
-    	 *
-    	 * Partner
+    	 * Partner:
     	 * conveyor out = left bumper
     	 * conveyor in = right bumper
     	 * shooter fire = right trigger
@@ -277,22 +244,19 @@ public class Robot extends IterativeRobot {
         double intakeArmSpeed = joysticks[1].getRawAxis(Axises.LEFT_Y);
     	intakeArm.set(intakeArmSpeed);
 
-        double shooterSpeed = shooterEncoder.getRate();
-
-        SmartDashboard.putNumber("Shooter speed value", shooterSpeed);
-
-        updateFlagLights(cameraLightOn, shooterAtShootSpeed());
+        updateStatusLights(cameraLightOn, shooterAtShootSpeed());
 
         updateDSLimitSW();
     }
-
 
     /**
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
+
     }
-    
+
+
     void runShooter(boolean on) {
         if (on) {
             double shootSpeed = shooterPrefs.getDouble("shootspeed", 93);
@@ -346,15 +310,15 @@ public class Robot extends IterativeRobot {
     }
 
 
-    void updateFlagLights(boolean cameraLight, boolean poleLight) {
+    void updateStatusLights(boolean cameraLight, boolean poleLight) {
         if (poleLight && cameraLight) {
-            flagLightsRelay.set(Relay.Value.kOn);
+            statusLightsRelay.set(Relay.Value.kOn);
         } else if (cameraLight) {
-            flagLightsRelay.set(Relay.Value.kForward);
+            statusLightsRelay.set(Relay.Value.kForward);
         } else if (poleLight) {
-            flagLightsRelay.set(Relay.Value.kReverse);
+            statusLightsRelay.set(Relay.Value.kReverse);
         } else {
-            flagLightsRelay.set(Relay.Value.kOff);
+            statusLightsRelay.set(Relay.Value.kOff);
         }
     }
 
@@ -404,13 +368,15 @@ public class Robot extends IterativeRobot {
         }
     }
 
-    void moveBoulder(Directions boulderDirection) { moveBoulder(boulderDirection, boulderDirection, boulderDirection); }
+    void moveBoulder(Directions boulderDirection) {
+        moveBoulder(boulderDirection, boulderDirection, boulderDirection);
+    }
+
     void moveBoulder(Directions intakeDirection, Directions conveyorDirection, Directions shooterDirection) {
         moveIntake(intakeDirection);
         moveConveyor(conveyorDirection);
         moveShooter(shooterDirection);
     }
-
 
 
     // Robot drive system utility functions:
@@ -430,7 +396,7 @@ public class Robot extends IterativeRobot {
 
 
     /**
-     * Returns the y value of the joystick for the respective motor.
+     * Returns the Y value of the joystick for the respective motor.
      *
      * @param side false for left  true for right
      * @return value of joystick for given motor
