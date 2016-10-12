@@ -357,7 +357,7 @@ public class Robot extends IterativeRobot {
 
         SmartDashboard.putNumber("Shooter speed value", shooterSpeed);
 
-        updateFlagLights(cameraLightOn, !ballLoaded.get());
+        updateFlagLights(cameraLightOn, shooterAtShootSpeed());
 
         updateDSLimitSW();
     }
@@ -423,34 +423,16 @@ public class Robot extends IterativeRobot {
     }
 
 
-    void updateFlagLights(boolean cameraLight, boolean ballIn) {
-        boolean ballLight = ballLightOn;
-
-        if (ballIn) {
-            if (!ballWasIn) {
-                ballWasIn = true;
-                ballLight = false;
-                ballLightTimer.reset();
-                ballLightTimer.start();
-            } else if (ballLightTimer.hasPeriodPassed(0.2)) {
-                ballLight = !ballLight;
-            }
-        } else {
-            ballWasIn = false;
-            ballLight = true;
-        }
-
-        if (ballLight && cameraLight) {
+    void updateFlagLights(boolean cameraLight, boolean poleLight) {
+        if (poleLight && cameraLight) {
             flagLightsRelay.set(Relay.Value.kOn);
         } else if (cameraLight) {
             flagLightsRelay.set(Relay.Value.kForward);
-        } else if (ballLight) {
+        } else if (poleLight) {
             flagLightsRelay.set(Relay.Value.kReverse);
         } else {
             flagLightsRelay.set(Relay.Value.kOff);
         }
-
-        ballLightOn = ballLight;
     }
 
     enum Directions {
