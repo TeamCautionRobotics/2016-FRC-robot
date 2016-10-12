@@ -5,6 +5,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDSourceType;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
@@ -75,6 +78,10 @@ public class Robot extends IterativeRobot {
     DigitalInput intakeArmDown;
     DigitalInput armForward;
 
+    PIDController shooterController;
+
+    Preferences shooterPrefs;
+
     double BLOB_COUNT;
     double COG_BOX_SIZE;
     double COG_X;
@@ -129,6 +136,8 @@ public class Robot extends IterativeRobot {
         ballLightTimer = new Timer();
 
         shooterEncoder = new Encoder(5, 6, true, Encoder.EncodingType.k4X);
+        shooterEncoder.setPIDSourceType(PIDSourceType.kRate);
+        shooterEncoder.setDistancePerPulse(1.0/1024);
 
         initalizeMotorSpeeds();
 
@@ -136,6 +145,23 @@ public class Robot extends IterativeRobot {
         intakeArmDown = new DigitalInput(1);
         armBack = new DigitalInput(2);
         armForward = new DigitalInput(3);
+
+        shooterController = new PIDController(1, 1, 1, 1, shooterEncoder, shooter);
+        shooterController.setOutputRange(0, 1);
+        shooterController.setInputRange(-115, 115);
+        shooterController.setSetpoint(0);
+        shooterController.enable();
+
+
+        shooterPrefs = Preferences.getInstance();
+
+        shooterPrefs.getDouble("P", 0.0005);    
+        shooterPrefs.getDouble("I", 0.005);     
+        shooterPrefs.getDouble("D", 0);         
+        shooterPrefs.getDouble("F", 0.001);         
+        shooterPrefs.getDouble("setpoint", 80);
+        shooterPrefs.putDouble("speed", 0);
+
 
         // Camera
         if (cameraConnected) {
@@ -240,7 +266,10 @@ public class Robot extends IterativeRobot {
     	 * all out = B
     	 * 
     	 */
-    	
+        updateShooterPIDGains();
+        updateShooterSpeedReport();
+//        runShooter(true);
+
         double leftSpeed = deadband(getMotor(Side.LEFT));
         double rightSpeed = deadband(getMotor(Side.RIGHT));
         double blobVal = axisCam.getNumber("BLOB_COUNT", 0.0);
@@ -291,13 +320,8 @@ public class Robot extends IterativeRobot {
 
             moveConveyor(conveyorDirection);
 
-            double shooterSpeed = shooterEncoder.getRate();
             // Shooter
-            if (joysticks[1].getRawAxis(Axises.RIGHT_TRIGGER) > 0.5 && shooterSpeed <= desiredShooterSpeed) {
-                moveShooter(Directions.IN);
-            } else {
-                moveShooter(Directions.STOP);
-            }
+            runShooter(joysticks[1].getRawAxis(Axises.RIGHT_TRIGGER) > 0.5);
         }
 
         double intakeArmSpeed = joysticks[1].getRawAxis(Axises.LEFT_Y);
@@ -344,7 +368,36 @@ public class Robot extends IterativeRobot {
      */
     public void testPeriodic() {
     }
+    
+    void runShooter(boolean on) {
+        if (on) {
+            // TODO: Set to correct default
+            double shootSpeed = shooterPrefs.getDouble("shootspeed", 80);
+            shooterController.setSetpoint(shootSpeed);
+        } else {
+            shooterController.setSetpoint(0);
+        }
+    }
+    
+    boolean shooterAtShootSpeed() {
+        double shootSpeed = shooterPrefs.getDouble("shootspeed", 80);
+        return Math.abs(shooterEncoder.getRate() - shootSpeed) <= 8;
+    }
+    
+    void updateShooterPIDGains() {
+        double p = shooterPrefs.getDouble("P", 0.0005);
+        double i = shooterPrefs.getDouble("I", 0.005);
+        double d = shooterPrefs.getDouble("D", 0);
+        double f = shooterPrefs.getDouble("F", 0.001);
 
+        shooterController.setPID(p, i, d, f);
+    }
+    
+    void updateShooterSpeedReport() {
+        double shooterSpeed = shooterEncoder.getRate();
+        shooterPrefs.putDouble("speed", shooterSpeed);
+        SmartDashboard.putNumber("sspeed", shooterSpeed);
+    }
 
     // Debug functions
     void updateDSLimitSW() {
@@ -435,13 +488,13 @@ public class Robot extends IterativeRobot {
     void moveShooter(Directions direction) {
         switch (direction) {
         case STOP:
-            shooter.set(0);
+            shooterController.setSetpoint(0);
             break;
         case IN:
-            shooter.set(SmartDashboard.getNumber("Shooter forward speed", 1));
+            runShooter(true);
             break;
         case OUT:
-            shooter.set(-SmartDashboard.getNumber("Shooter backward speed", 1));
+            shooterController.setSetpoint(-50);
             break;
         }
     }
