@@ -286,6 +286,7 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putNumber("sspeed", shooterSpeed);
     }
 
+
     // Debug functions
     void updateDSLimitSW() {
         SmartDashboard.putBoolean("Limit Switches armBack", armBack.get());
@@ -321,6 +322,7 @@ public class Robot extends IterativeRobot {
             statusLightsRelay.set(Relay.Value.kOff);
         }
     }
+
 
     enum Directions {
         STOP, IN, OUT
