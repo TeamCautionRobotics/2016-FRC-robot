@@ -210,21 +210,22 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-    	/* Main
-    	 * Drive = Joysticks
+    	/* 
+    	 * Main
+    	 * Drive = both joysticks Y
     	 * all out = left trigger
-    	 * intake out = left bumper
-    	 * intake in = right bumper
-    	 * 
-    	 * 
+    	 * Turn on targeting light = A
+    	 *
+    	 *
     	 * Partner
     	 * conveyor out = left bumper
     	 * conveyor in = right bumper
     	 * shooter fire = right trigger
-    	 * arm = left joystick
+    	 * intake arm = left joystick Y
+    	 * intake roller = right joystick Y
     	 * all out = B
-    	 * 
     	 */
+
         updateShooterPIDGains();
         updateShooterSpeedReport();
 
