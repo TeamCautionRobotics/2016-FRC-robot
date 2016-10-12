@@ -238,8 +238,6 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putNumber("left joy db", leftSpeed);
         SmartDashboard.putNumber("right joy db", rightSpeed);
 
-        SmartDashboard.putBoolean("speed mapping", getSpeedMapping());
-
         setDrive(leftSpeed, rightSpeed);
 
         // The camera light button is not the same as what it was
@@ -444,16 +442,6 @@ public class Robot extends IterativeRobot {
     class Side {
         public final static boolean LEFT = false;
         public final static boolean RIGHT = true;
-    }
-
-
-    /**
-     * Determines whether to use the reduced speed mode
-     *
-     * @return true if reduced speed, false if not
-     */
-    boolean getSpeedMapping() {
-        return joysticks[0].getRawAxis(Axises.LEFT_TRIGGER) > 0.5;
     }
 
 
