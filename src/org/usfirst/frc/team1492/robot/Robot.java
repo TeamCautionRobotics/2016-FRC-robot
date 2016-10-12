@@ -86,9 +86,12 @@ public class Robot extends IterativeRobot {
         public final static int B = 2;
         public final static int X = 3;
         public final static int Y = 4;
-        // Above analog trigger
+
+        // Above analog triggers
         public final static int LEFT_BUMPER = 5, RIGHT_BUMPER = 6;
+
         public final static int BACK = 7, START = 8;
+
         // Joystick click
         public final static int LEFT_JOYSTICK = 9, RIGHT_JOYSTICK = 10;
     }
