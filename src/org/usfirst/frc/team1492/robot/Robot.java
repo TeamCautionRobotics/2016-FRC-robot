@@ -241,7 +241,7 @@ public class Robot extends IterativeRobot {
             runShooter(joysticks[1].getRawAxis(Axises.RIGHT_TRIGGER) > 0.5);
         }
 
-        double intakeArmSpeed = joysticks[1].getRawAxis(Axises.LEFT_Y);
+        double intakeArmSpeed = deadband(joysticks[1].getRawAxis(Axises.LEFT_Y));
     	intakeArm.set(intakeArmSpeed);
     	SmartDashboard.putNumber("Intake arm motor", intakeArmSpeed);
 
