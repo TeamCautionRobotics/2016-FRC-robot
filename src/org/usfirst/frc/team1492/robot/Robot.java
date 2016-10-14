@@ -243,6 +243,7 @@ public class Robot extends IterativeRobot {
 
         double intakeArmSpeed = joysticks[1].getRawAxis(Axises.LEFT_Y);
     	intakeArm.set(intakeArmSpeed);
+    	SmartDashboard.putNumber("Intake arm motor", intakeArmSpeed);
 
         updateStatusLights(cameraLightOn, shooterAtShootSpeed());
 
