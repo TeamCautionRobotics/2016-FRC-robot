@@ -63,6 +63,9 @@ public class Robot extends IterativeRobot {
     Preferences shooterPrefs;
 
     boolean autoMode = true;
+    
+    final static String slowAutoString = "slow auto";
+    double autoDriveTime = 0;
 
     class Buttons {
         public final static int A = 1;
@@ -127,6 +130,9 @@ public class Robot extends IterativeRobot {
         shooterPrefs.getDouble("F", 0.001);
         shooterPrefs.getDouble("setpoint", 80);
         shooterPrefs.putDouble("speed", 0);
+        
+        SmartDashboard.putBoolean(slowAutoString, false);
+        SmartDashboard.getBoolean(slowAutoString, false);
 
 
         // Camera
@@ -156,13 +162,20 @@ public class Robot extends IterativeRobot {
         switch (autoState) {
         	case INITAL: {
         		autoState = AutoState.DRIVING;
-        		setDrive(0.4);
+        		if (SmartDashboard.getBoolean(slowAutoString)) {
+        		    autoDriveTime = 7;
+                    setDrive(0.4);
+        		} else {
+                    autoDriveTime = 3.7;
+                    setDrive(0.8);
+        		}
+
         		autoTimer.reset();
                 autoTimer.start();
         		break;
         	}
 			case DRIVING: {
-				if(autoTimer.get() >= 7){
+				if(autoTimer.get() >= autoDriveTime){
     				setDrive(0);
     				autoState = AutoState.FINISHED;
 				}
