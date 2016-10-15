@@ -40,6 +40,7 @@ public class Robot extends IterativeRobot {
 
     boolean cameraLightOn = false;
     boolean cameraLightPressed = false;
+    boolean shooterControllerEnabled = false;
 
     Encoder shooterEncoder;
     
@@ -122,7 +123,7 @@ public class Robot extends IterativeRobot {
         shooterController.setInputRange(-115, 115);
         shooterController.setSetpoint(0);
         shooterController.setToleranceBuffer(4);
-        shooterController.enable();
+        shooterControllerEnabled(true);
 
         shooterPrefs = Preferences.getInstance();
         shooterPrefs.getDouble("P", 0.0005);
@@ -272,6 +273,9 @@ public class Robot extends IterativeRobot {
 
 
     void runShooter(boolean on) {
+        if (!shooterControllerEnabled) {
+            shooterControllerEnabled(true);
+        }
         if (on) {
             double shootSpeed = shooterPrefs.getDouble("shootspeed", 98);
             shooterController.setSetpoint(shootSpeed);
@@ -300,6 +304,19 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putNumber("sspeed", shooterSpeed);
     }
 
+    void shooterControllerEnabled(boolean isEnabled) {
+        if (isEnabled == shooterControllerEnabled) {
+            return;
+        } else {
+            if (isEnabled) {
+                shooterController.enable();
+                shooterControllerEnabled = true;
+            } else {
+                shooterController.disable();
+                shooterControllerEnabled = false;
+            }
+        }
+    }
 
     // Debug functions
     void updateDSLimitSW() {
@@ -376,10 +393,12 @@ public class Robot extends IterativeRobot {
             shooterController.setSetpoint(0);
             break;
         case IN:
+            shooterControllerEnabled(true);
             runShooter(true);
             break;
         case OUT:
-            shooterController.setSetpoint(-50);
+            shooterControllerEnabled(false);
+            shooter.set(-0.5);
             break;
         }
     }
