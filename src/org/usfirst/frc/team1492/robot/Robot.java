@@ -123,7 +123,7 @@ public class Robot extends IterativeRobot {
         shooterController.setInputRange(-115, 115);
         shooterController.setSetpoint(0);
         shooterController.setToleranceBuffer(4);
-        shooterControllerEnabled(true);
+        shooterControllerEnabled(false);
 
         shooterPrefs = Preferences.getInstance();
         shooterPrefs.getDouble("P", 0.0005);
@@ -189,6 +189,12 @@ public class Robot extends IterativeRobot {
 		default:
 			break;
         }
+    }
+
+    @Override
+    public void teleopInit() {
+        shooterController.setSetpoint(0);
+        shooterControllerEnabled(true);
     }
 
     /**
