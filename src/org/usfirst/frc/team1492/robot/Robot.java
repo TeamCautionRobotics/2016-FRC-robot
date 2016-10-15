@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends IterativeRobot {
 
     final boolean cameraConnected = true;
+    static final double defaultShootSpeed = 94;
 
     CameraServer server;
 
@@ -130,7 +131,7 @@ public class Robot extends IterativeRobot {
         shooterPrefs.getDouble("I", 0.005);
         shooterPrefs.getDouble("D", 0);
         shooterPrefs.getDouble("F", 0.001);
-        shooterPrefs.putDouble("shootspeed", 98);
+        shooterPrefs.putDouble("shootspeed", defaultShootSpeed);
         
         SmartDashboard.putBoolean(slowAutoString, false);
         SmartDashboard.getBoolean(slowAutoString, false);
@@ -283,7 +284,7 @@ public class Robot extends IterativeRobot {
             shooterControllerEnabled(true);
         }
         if (on) {
-            double shootSpeed = shooterPrefs.getDouble("shootspeed", 98);
+            double shootSpeed = shooterPrefs.getDouble("shootspeed", defaultShootSpeed);
             shooterController.setSetpoint(shootSpeed);
         } else {
             shooterController.setSetpoint(0);
@@ -291,7 +292,7 @@ public class Robot extends IterativeRobot {
     }
     
     boolean shooterAtShootSpeed() {
-        double shootSpeed = shooterPrefs.getDouble("shootspeed", 98);
+        double shootSpeed = shooterPrefs.getDouble("shootspeed", defaultShootSpeed);
         return Math.abs(shooterEncoder.getRate() - shootSpeed) <= 5;
     }
     
