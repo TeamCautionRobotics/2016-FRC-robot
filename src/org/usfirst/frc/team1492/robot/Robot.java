@@ -121,6 +121,7 @@ public class Robot extends IterativeRobot {
         shooterController.setOutputRange(0, 1);
         shooterController.setInputRange(-115, 115);
         shooterController.setSetpoint(0);
+        shooterController.setToleranceBuffer(4);
         shooterController.enable();
 
         shooterPrefs = Preferences.getInstance();
@@ -128,8 +129,7 @@ public class Robot extends IterativeRobot {
         shooterPrefs.getDouble("I", 0.005);
         shooterPrefs.getDouble("D", 0);
         shooterPrefs.getDouble("F", 0.001);
-        shooterPrefs.getDouble("setpoint", 80);
-        shooterPrefs.putDouble("speed", 0);
+        shooterPrefs.putDouble("shootspeed", 98);
         
         SmartDashboard.putBoolean(slowAutoString, false);
         SmartDashboard.getBoolean(slowAutoString, false);
@@ -273,7 +273,7 @@ public class Robot extends IterativeRobot {
 
     void runShooter(boolean on) {
         if (on) {
-            double shootSpeed = shooterPrefs.getDouble("shootspeed", 93);
+            double shootSpeed = shooterPrefs.getDouble("shootspeed", 98);
             shooterController.setSetpoint(shootSpeed);
         } else {
             shooterController.setSetpoint(0);
@@ -281,8 +281,8 @@ public class Robot extends IterativeRobot {
     }
     
     boolean shooterAtShootSpeed() {
-        double shootSpeed = shooterPrefs.getDouble("shootspeed", 80);
-        return Math.abs(shooterEncoder.getRate() - shootSpeed) <= 8;
+        double shootSpeed = shooterPrefs.getDouble("shootspeed", 98);
+        return Math.abs(shooterEncoder.getRate() - shootSpeed) <= 5;
     }
     
     void updateShooterPIDGains() {
