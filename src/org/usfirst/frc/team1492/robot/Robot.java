@@ -139,16 +139,7 @@ public class Robot extends IterativeRobot {
 
         // Camera
         if (cameraConnected) {
-            server = CameraServer.getInstance();
-            server.setQuality(50);
-            // Iterate through camera ids (0 to 3) to find camera (if connected)
-            for (int i = 0; i < 4; i++) {
-                server.startAutomaticCapture("cam" + i);
-                if (server.isAutoCaptureStarted()) {
-                    System.out.println("Camera found at " + i);
-                    break;
-                }
-            }
+            CameraServer.getInstance().startAutomaticCapture();
         }
     }
 
